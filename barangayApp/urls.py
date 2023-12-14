@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib import admin
-from barangayApp import provincialAdminviews, municipalAdminviews, municipalStaffviews, barangayAdminviews, barangayStaffviews, views, touristSpotsviews, superAdminviews
+from barangayApp import provincialAdminviews, municipalAdminviews, barangayAdminviews, barangayStaffviews, views, touristSpotsviews, superAdminviews
 from django.views.generic.base import RedirectView
 from .provincialAdminviews import ExportResidentsPDFView
 from .barangayStaffviews import ExportHouseholdsPDFView, GeneratePDF, ExportHouseholdsExcelView, GenerateExcel
