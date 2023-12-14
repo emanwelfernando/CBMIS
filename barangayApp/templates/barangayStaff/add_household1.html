@@ -1,0 +1,227 @@
+{% load leaflet_tags %}
+{% leaflet_js %}
+{% leaflet_css %}
+<style>
+  .custom-outline:focus {
+    outline-color: black !important;
+  }
+  
+  .custom-outline:focus {
+    outline: none !important;
+  }
+
+  .section-heading {
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  .section-divider {
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Adjust input field widths */
+  .form-control {
+    width: 100%;
+  }
+
+  .column-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .column {
+    flex-basis: calc(50% - 15px); /* Adjust spacing as needed */
+  }
+  .search-results {
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+
+  .selected-beneficiary {
+    display: inline-block;
+    margin: 4px;
+    padding: 8px 12px;
+    background-color: #e2e3e5;
+    border-radius: 20px;
+    position: relative;
+  }
+
+  .selected-beneficiary .btn-delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+  }
+</style>
+
+<div class="modal fade" id="addHousehold" tabindex="-1" aria-labelledby="addHouseholdModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addHouseholdModalLabel">Add Household Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form {% block action %} action="{% url 'barangay-staff-add-household' %}" {% endblock action %} method="POST" autocomplete="on">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="household_head" class="form-label">Household Head:</label>
+            <input type="text" class="form-control" id="selected-head-ids" name="selected_head_ids" value="">
+            <ul id="search-results-head" class="list-group search-results"></ul>
+            <div id="selected-head" class="mb-3"></div>
+          </div>
+          <div class="mb-3">
+            <label for="household_beneficiaries" class="form-label">Household Beneficiaries:</label>
+            <div class="position-relative">
+              <input type="text" class="form-control" id="selected-beneficiaries-ids" name="selected_beneficiaries_ids" value="">
+              <ul id="search-results" class="list-group search-results"></ul>
+            </div>
+            <div id="selected-beneficiaries" class="mb-3"></div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="number" class="form-control" name="num_senior_citizens" placeholder="Number of senior citizens in the household" {% block num_senior_citizens %}{% endblock num_senior_citizens %}>
+          </div>
+          <div class="input-group mb-3">
+            <input type="number" class="form-control" name="num_pregnant_lactating_mothers" placeholder="Number of pregnant / lactating mothers in the household" {% block num_pregnant_lactating_mothers %}{% endblock num_pregnant_lactating_mothers %}>
+          </div>
+          <div class="input-group mb-3">
+            <input type="number" class="form-control" name="num_beneficiaries_with_disability" placeholder="Number of beneficiaries with disability" {% block num_beneficiaries_with_disability %}{%endblock num_beneficiaries_with_disability %}>
+          </div>
+
+              <div class="input-group mb-3">
+                <select class="form-select" name="relationship">
+                    {% block relationship_option %}
+                    <option value="" disabled selected hidden>Relationship</option>
+                    {% endblock relationship_option %}
+                    <option value="Spouse">Spouse</option>
+                    <option value="Partner">Partner</option>
+                    <option value="Son">Son</option>
+                    <option value="Daughter">Daughter</option>
+                    <option value="Brother">Brother</option>
+                    <option value="Sister">Sister</option>
+                    <option value="Father">Father</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Mother-in-law">Mother-in-law</option>
+                    <option value="Father-in-law">Father-in-law</option>
+                    <option value="Stepson">Stepson</option>
+                    <option value="Stepdaughter">Stepdaughter</option>
+                    <option value="Son-in-law">Son-in-law</option>
+                    <option value="Daughter-in-law">Daughter-in-law</option>
+                    <option value="Brother-in-law">Brother-in-law</option>
+                    <option value="Sister-in-law">Sister-in-law</option>
+                    <option value="Uncle">Uncle</option>
+                    <option value="Aunt">Aunt</option>
+                    <option value="Nephew">Nephew</option>
+                    <option value="Niece">Niece</option>
+                    <option value="Boarder">Boarder</option>
+                    <option value="Domestic helper">Domestic helper</option>
+                    <option value="Nonrelative">Nonrelative</option>
+                    <option value="Other relative">Other relative</option>
+                </select>
+            </div> 
+
+            <div class="mb-3">
+              <label for="location" class="form-label">Location:</label>
+              <div id="map" style="width: 100%; height: 300px; margin-bottom: 20px;"></div>
+              <input type="hidden" id="latitude" name="latitude">
+              <input type="hidden" id="longitude" name="longitude">
+            </div>
+  
+            <button type="submit" class="btn btn-success">Add Household</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const headInput = document.getElementById('selected-head-ids');
+      const headResults = document.getElementById('search-results-head');
+      const beneficiariesInput = document.getElementById('household_beneficiaries');
+      const beneficiariesResults = document.getElementById('search-results');
+      const selectedBeneficiaries = document.getElementById('selected-beneficiaries');
+      const selectedHead = document.getElementById('selected-head');
+  
+      function showResults(results, inputElement, resultsElement, selectedContainer) {
+        resultsElement.innerHTML = '';
+  
+        results.forEach(result => {
+          const listItem = document.createElement('li');
+          listItem.classList.add('list-group-item');
+          listItem.innerText = result.full_name;
+  
+          listItem.addEventListener('click', function() {
+            const selectedResident = result;
+            const selectedName = selectedResident.full_name;
+            const residentId = selectedResident.id;
+  
+            inputElement.dataset.residentId = residentId;
+  
+            const selectedResidentElement = document.createElement('div');
+            selectedResidentElement.classList.add('badge', 'bg-secondary', 'rounded-pill', 'me-2');
+            selectedResidentElement.innerText = selectedName;
+            selectedResidentElement.dataset.residentId = residentId;
+  
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('btn-close', 'btn-close-white');
+            deleteButton.addEventListener('click', function() {
+              selectedResidentElement.remove();
+            });
+  
+            selectedResidentElement.appendChild(deleteButton);
+            selectedContainer.appendChild(selectedResidentElement);
+  
+            inputElement.value = '';
+            resultsElement.innerHTML = '';
+          });
+  
+          resultsElement.appendChild(listItem);
+        });
+      }
+  
+      headInput.addEventListener('input', function() {
+        const searchQuery = headInput.value;
+        if (!searchQuery.trim()) {
+          headResults.innerHTML = '';
+          return;
+        }
+  
+        fetch(`/api/search_residents/?q=${searchQuery}`)
+          .then(response => response.json())
+          .then(data => {
+            showResults(data.results, headInput, headResults, selectedHead);
+          });
+      });
+  
+      beneficiariesInput.addEventListener('input', function() {
+        const searchQuery = beneficiariesInput.value;
+        if (!searchQuery.trim()) {
+          beneficiariesResults.innerHTML = '';
+          return;
+        }
+  
+        fetch(`/api/search_beneficiaries/?q=${searchQuery}`)
+          .then(response => response.json())
+          .then(data => {
+            showResults(data.results, beneficiariesInput, beneficiariesResults, selectedBeneficiaries);
+          });
+      });
+  
+      document.querySelector('form').addEventListener('submit', function(event) {
+        // Handle household head
+        var selectedHead = document.getElementById('selected-head');
+        var selectedHeadIds = [...selectedHead.querySelectorAll('div')].map(div => div.dataset.residentId);
+        document.getElementById('selected-head-ids').value = selectedHeadIds.join(',');
+  
+        // Handle household beneficiaries
+        var selectedBeneficiaries = document.getElementById('selected-beneficiaries');
+        var selectedBeneficiariesIds = [...selectedBeneficiaries.querySelectorAll('div')].map(div => div.dataset.residentId);
+        document.getElementById('selected-beneficiaries-ids').value = selectedBeneficiariesIds.join(',');
+      });
+    });
+  </script>

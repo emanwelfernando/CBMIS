@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Edit Document</h2>
+  <p>Click the link below to open the document in Microsoft Word for editing:</p>
+  <a href="{% url 'barangay-staff-edit-document' doc_file %}" target="_blank">Edit Document</a>
+  <!-- Add any additional content or buttons here -->
+{% endblock %}

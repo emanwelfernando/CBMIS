@@ -1,0 +1,39 @@
+<table class="table" style="overflow-x: auto;">
+    <thead>
+        <tr>
+            <th scope="col">#</th>                           
+            <th class="sticky-header" scope="col" style="text-align: center;">Action</th>                               
+            <th scope="col">Head</th>
+            <th scope="col">Members</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for household in households %}
+            <tr>
+                <td>{{ start_index|add:forloop.counter0|add:1 }}</td>
+                <td style="text-align: center">
+                    <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewHousehold{{ household.id }}">
+                        <i class="fa-sharp fa-solid fa-eye"></i>
+                    </a>                             
+                    {% include 'barangayStaff/view_household.html' %}
+                    <a class="btn btn-success btn-sm btn-block edit-household-btn" title="Edit" data-bs-toggle="modal" data-bs-target="#editHousehold{{ household.id }}" data-household-id="{{ household.id }}">
+                     <i class="fas fa-pen"></i>
+                 </a>                                                                        
+                    <a class="btn btn-success btn-sm btn-block" title="Delete"  id="delete_resident{{ household.id }}_{{ household.first_name }}" data-bs-toggle="modal" data-bs-target="#deleteHousehold{{ household.id }}">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </td>
+                <td>{{household.household_head}}</td>
+                <td>
+                    {% for member in household.members.all %}
+                    <div>
+                        {{ member.first_name }} {{ member.last_name }},
+                    </div>
+                {% endfor %}
+                </td>
+            </tr>
+                    {% include 'barangayStaff/edit_household.html' %}
+                    {% include 'barangayStaff/delete_household.html' %}
+        {% endfor %}
+</tbody>
+</table>

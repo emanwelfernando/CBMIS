@@ -1,0 +1,56 @@
+
+
+{% for tourist_spot in tourist_spots %}
+    <div class="modal fade" id="viewTourist_spots{{ tourist_spot.id }}" tabindex="-1" aria-labelledby="ViewResidentLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="viewResidentLabel">Spot Information</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid" id="bmargin">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <br>
+                                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                                    <hr>                     
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th scope='row'>Name</th>
+                                                <td>{{ tourist_spot.name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope='row'>Photos</th>
+                                                <td>
+                                                    {% if tourist_spot.photo %}
+                                                    <img src="{{ tourist_spot.photo.url }}" alt="{{ tourist_spot.name }} Photo" class="img-thumbnail fixed-size-photo">
+                                                    {% else %}
+                                                            <p>No photo available</p>
+                                                        {% endif %}
+                                                </td>
+                                            <tr>
+                                                <th scope='row'>Description</th>
+                                                <td><textarea class="form-control custom-outline" name="description"> {{ tourist_spot.description }}</textarea></td>
+                                            </tr>
+                                            </tr>
+                                            <tr>
+                                                <th scope='row'>Spot Type</th>
+                                                <td>{{ tourist_spot.spot_type }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+  

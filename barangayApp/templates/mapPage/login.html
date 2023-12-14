@@ -1,0 +1,447 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay App</title>
+    {% load leaflet_tags %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .popup-container {
+            position: relative;
+        }
+
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .popup {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .popup .app-launcher button {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+
+        .popup .app-launcher button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+.login-form input {
+    display: block;
+    width: 200%; /* Set the width to 100% */
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-container {
+    margin-right: 20px; /* Adjust this value as needed to move the login button */
+}
+
+        .login-button {
+            display: block;
+            width: fit-content;
+            margin: 8px 0;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #ccc;
+        }
+  .navbar-login-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .popup-container {
+            position: relative;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: absolute;
+            top: 150%;
+            left: -100%;
+            transform: translateX(-50%);
+            width: 300px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .popup {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .popup .app-launcher button {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+
+        .popup .app-launcher button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+.login-form input {
+    display: block;
+    width: 100%; /* Set the width to 100% */
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+        .back-button {
+            display: block;
+            width: fit-content;
+            margin: 8px 0;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #ccc;
+        }
+        /* Map Styles */
+        .map-container {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            height: calc(100vh - 56px); /* Adjusted to account for the navbar height */
+            margin: auto;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .leaflet-control-coordinate {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        
+        .leaflet-bottom.leaflet-right {
+            right: 10px;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            z-index: 1000; /* Ensure the navbar is above other elements */
+        }
+        
+        .navbar-nav {
+            margin-left: auto; /* Push the navbar items to the right */
+        }
+        
+        .navbar-nav .nav-link {
+            padding: .5rem 1rem;
+        }
+        
+        .navbar-toggler-icon {
+            color: white;
+        }
+        
+        /* Navbar Background and Text Colors */
+        .navbar-dark .navbar-nav .nav-link {
+            color: white;
+        }
+        
+        .navbar-dark .navbar-toggler-icon {
+            filter: invert(1); /* Invert the color of the toggler icon */
+        }
+        
+    </style>
+</head>
+
+<body>  
+    <nav class="navbar navbar-expand-lg navbar-dark bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-success" href="#">BMIS</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            
+            <form class="d-flex" role="search">
+                <input class="form-control form-control-sm me-2" type="search"  aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+   
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <div class="login-container">
+                            <div class="popup-container">
+                                
+                <button class="btn btn-outline-success" onclick="togglePopup()">
+                    Login
+                </button>
+                                <div class="popup-overlay" id="popup-overlay">
+                                    <div class="popup">
+                                        <div class="app-launcher">
+                                            <p>HI</p>
+                                            <button onclick="showLoginForm('Provincial Admin')">
+                                                <i class="fas fa-user-shield"></i> <!-- Admin icon -->
+                                                Provincial Admin
+                                            </button>
+                                            <button onclick="showLoginForm('Municipal Admin')">
+                                                <i class="fas fa-user"></i> <!-- User icon -->
+                                                Municipal Admin
+                                            </button>
+                                            <button onclick="showLoginForm('Municipal Staff')">
+                                                <i class="fas fa-user"></i> <!-- User icon -->
+                                                Municipal Staff
+                                            </button>
+                                            <button onclick="showLoginForm('Barangay Admin')">
+                                                <i class="fas fa-user"></i> <!-- User icon -->
+                                                Barangay Admin
+                                            </button>
+                                            <button onclick="showLoginForm('Barangay Staff')">
+                                                <i class="fas fa-user"></i> <!-- User icon -->
+                                                Barangay Staff
+                                            </button>
+                                            <button onclick="showLoginForm('Tourist Staff')">
+                                                <i class="fas fa-user"></i> <!-- User icon -->
+                                                Tourist Staff
+                                            </button>
+                                        </div>
+                                        <div class="login-form" id="login-form">
+                                            <button class="back-button" onclick="goBack()">
+                                                <i class="fas fa-arrow-left"></i> <!-- Back icon -->
+                                                Back
+                                            </button>
+                                            <form method="POST" action="{% url 'home-page' %}">
+                                                {% csrf_token %}
+                                            <input type="text" id="username" name="username" placeholder="Username" required>
+                                            <input type="password" id="password" name="password" placeholder="Password" required>
+                                            <button class="login-button" onclick="submitForm()">
+                                                <i class="fas fa-sign-in-alt"></i> <!-- Login icon -->
+                                                Login
+                                            </button>
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+     
+            
+            
+    </nav>
+
+    
+    <div class="container-fluid">
+        <div class="row">
+                <div class="map-container">
+                    <div id="map">
+                        <div class="leaflet-control-coordinate"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<!-- leaflet js  -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js'  %}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+
+<script>
+    function togglePopup() {
+        var popupOverlay = document.getElementById('popup-overlay');
+        popupOverlay.style.display = (popupOverlay.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function showLoginForm(role) {
+        var appLauncher = document.querySelector('.app-launcher');
+        var loginForm = document.getElementById('login-form');
+        appLauncher.style.display = 'none';
+        loginForm.style.display = 'block';
+    }
+
+    function goBack() {
+        var appLauncher = document.querySelector('.app-launcher');
+        var loginForm = document.getElementById('login-form');
+        appLauncher.style.display = 'block';
+        loginForm.style.display = 'none';
+    }
+    function redirectToLogin(userRole) {
+        var url;
+        if (userRole === 'provincial_admin') {
+            url = '/login/provincial_admin/';
+        } else if (userRole === 'municipal_admin') {
+            url = '/login/municipal_admin/';
+        } else if (userRole === 'municipal_staff') {
+            url = '/login/municipal_staff/';
+        } else if (userRole === 'barangay_admin') {
+            url = '/login/barangay_admin/';
+        } else if (userRole === 'barangay_staff') {
+            url = '/login/barangay_staff/';
+        } else if (userRole === 'tourist_staff') {
+            url = '/login/tourist_staff/';
+        }
+        window.location.href = url;
+    }
+
+
+    // Map initialization 
+    var map = L.map('map', {
+        center: [11.5865, 124.4849],
+        zoom: 10.5,
+        zoomControl: false // Disable default zoom controls
+    });
+    {% for spot in spots %}
+        var latitude{{ spot.id }} = {{ spot.location.y }};
+        var longitude{{ spot.id }} = {{ spot.location.x }};
+        var name{{ spot.id }} = '{{ spot.name }}';
+        var popupContent{{ spot.id }} = `
+            <strong>Name:</strong> ${name{{ spot.id }}}
+            <br>
+            <strong>Latitude:</strong> ${latitude{{ spot.id }}}
+            <br>
+            <strong>Longitude:</strong> ${longitude{{ spot.id }}}
+        `;
+        L.marker([latitude{{ spot.id }}, longitude{{ spot.id }}]).addTo(map)
+            .bindPopup(popupContent{{ spot.id }});
+    {% endfor %}
+
+    // Add zoom control to bottom left
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+    
+    /*==============================================
+                TILE LAYER and WMS
+    ================================================*/
+        // OSM layer
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        osm.addTo(map);
+
+        // Dark map 
+        var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        var baseMaps = {
+            "OSM": osm,
+            "Dark": dark,
+        };
+
+        L.control.layers(baseMaps, null, {position: 'bottomright'}).addTo(map);
+        
+    /*==============================================
+                    LEAFLET EVENTS
+    ================================================*/
+    map.on('mouseover', function () {
+        console.log('your mouse is over the map')
+    })
+
+    map.on('mousemove', function (e) {
+        document.getElementsByClassName('coordinate')[0].innerHTML = 'lat: ' + e.latlng.lat + 'lng: ' + e.latlng.lng;
+        console.log('lat: ' + e.latlng.lat, 'lng: ' + e.latlng.lng)
+    })
+
+
+    /*==============================================
+                    STYLE CUSTOMIZATION
+    ================================================*/
+
+
+</script>
+
+
+   
+</body>
+
+</html>

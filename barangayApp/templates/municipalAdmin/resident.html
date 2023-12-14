@@ -1,0 +1,773 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+<style>
+    .text-center-container {
+        padding-top: 15px; 
+    }
+
+    #wrapper {
+        overflow-x: hidden;
+        background-color: #f3f6fd;
+    }
+
+    .text-center-container {
+        padding-top: 15px;
+    }
+    
+ 
+    #resident-filter-form .form-control{
+        width: 378px;
+    }
+    
+    #resident-filter-form select {
+        width: 400px;
+
+    }
+    .resident-profile-container {
+        margin-bottom: 20px;
+    }
+    
+    .resident-profile-checkbox-container {
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        max-width: 450px;
+        margin-bottom: 10px;
+    }
+    
+    .resident-profile-checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 5px;
+    }
+    
+    .resident-profile-checkbox {
+        margin: 0;
+    }
+    
+    .resident-profile-label {
+        font-weight: bold;
+    }
+    
+    .resident-profile-popup {
+        display: none;
+        position: absolute;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        z-index: 1;
+        width: 400px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        padding: 10px;
+    }
+    
+    .education-container {
+        margin-bottom: 20px;
+    }
+    
+    .education-checkbox-container {
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        max-width: 450px;
+        margin-bottom: 10px;
+    }
+    
+    .education-checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 5px;
+    }
+    
+    .education-checkbox {
+        margin: 0;
+    }
+    
+    .education-label {
+        font-weight: bold;
+    }
+    
+    .education-popup {
+        display: none;
+        position: absolute;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        z-index: 1;
+        width: 400px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        padding: 10px;
+    }
+    
+    .economic-container {
+        margin-bottom: 20px;
+    }
+    
+    .economic-checkbox-container {
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        width: 450px; /* Set a fixed width of 300px */
+        margin-bottom: 10px;
+    }
+    
+    .economic-checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 5px;
+    }
+    
+    .economic-checkbox {
+        margin: 0;
+    }
+    
+    .economic-label {
+        font-weight: bold;
+    }
+    
+    .economic-popup {
+        display: none;
+        position: absolute;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        z-index: 1;
+        width: 400px; /* Keep the popup width as it is */
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        padding: 10px;
+    }    
+
+    .health-container {
+        margin-bottom: 20px;
+    }
+    
+    .health-checkbox-container {
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        width: 450px; /* Set a fixed width of 300px */
+        margin-bottom: 10px;
+    }
+    
+    .health-checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 5px;
+    }
+    
+    .health-checkbox {
+        margin: 0;
+    }
+    
+    .health-label {
+        font-weight: bold;
+    }
+    
+    .health-popup {
+        display: none;
+        position: absolute;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        z-index: 1;
+        width: 400px; /* Keep the popup width as it is */
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        padding: 10px;
+    }
+</style>
+
+<div id="resident-table-container">
+<div class="d-flex" id="wrapper">
+    
+    {% include 'municipalAdmin/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">Municipality of {{request.user.municipal}} Residents Information</div>
+                            </div>
+                        </div>
+                        <br>
+                        <form method="get" action="{% url 'municipal-admin-resident' %}" class="row g-3" id="resident-filter-form">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                <div class="resident-profile-container">
+                                    <div class="resident-profile-checkbox-container">
+                                        <span class="resident-profile-label">Resident Profile:</span>
+                                        <div class="resident-profile-checkbox-group">
+                                            <label><input type="checkbox" class="resident-profile-checkbox" value="Name"> Name</label>
+                                            <label><input type="checkbox" class="resident-profile-checkbox" value="Age"> Age</label>
+                                            <label><input type="checkbox" class="resident-profile-checkbox" value="Vaccination"> Vaccination</label>
+                                            <label><input type="checkbox" class="resident-profile-checkbox" value="Sex"> Sex</label>
+                                            <label><input type="checkbox" class="resident-profile-checkbox" value="Status"> Status</label>
+                                        </div>
+                                    </div>
+                                    <div class="resident-profile-popup" id="residentProfileFields"></div>
+                                </div>   
+                            </div>
+                                <div class="mb-3">
+                                    <div class="education-container">
+                                        <div class="education-checkbox-container">
+                                            <span class="education-label">Education:</span>
+                                            <div class="education-checkbox-group">
+                                                <label><input type="checkbox" class="education-checkbox" value="Early Childhood"> Early Childhood</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Primary"> Primary</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Lower Secondary"> Lower Secondary</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Upper Secondary"> Upper Secondary</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Strands"> Strands</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Bachelor Education"> Bachelor Education</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Master and Doctoral"> Master and Doctoral</label>
+                                                <label><input type="checkbox" class="education-checkbox" value="Reason for not Attending"> Reason for not Attending</label>
+                                            </div>
+                                        </div>
+                                        <div class="education-popup" id="educationFields"></div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="col-md-6">
+                                <div class="col-md-3">
+                                    <div class="economic-container">
+                                        <div class="economic-checkbox-container">
+                                            <span class="economic-label">Economic:</span>
+                                            <div class="economic-checkbox-group">
+                                                <label><input type="checkbox" class="economic-checkbox" value="Working Arrangement"> Working Arrangement</label>
+                                                <label><input type="checkbox" class="economic-checkbox" value="Nature of Employment"> Nature of Employment</label>
+                                                <label><input type="checkbox" class="economic-checkbox" value="Class of Worker"> Class of Worker</label>
+                                                <label><input type="checkbox" class="economic-checkbox" value="Basis of Payment"> Basis of Payment</label>
+                                            </div>
+                                        </div>
+                                        <div class="economic-popup" id="economicFields"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="health-container">
+                                        <div class="health-checkbox-container">
+                                            <span class="health-label">Health:</span>
+                                            <div class="health-checkbox-group">
+                                                <label><input type="checkbox" class="health-checkbox" value="Disability"> Disability</label>
+                                                <label><input type="checkbox" class="health-checkbox" value="Illness"> Illness</label>
+                                            </div>
+                                        </div>
+                                        <div class="health-popup" id="healthFields"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success btn-md btn-block">Filter</button>
+                                <button type="button" class="btn btn-success btn-md btn-block" onclick="clearFilter()">Clear</button>
+                            </div>
+                        </form>
+                          <br>
+                        <div class="row table-container">
+                            <table class="table" style="overflow-x: auto;">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th class="sticky-header" scope="col" style="text-align: center;">Action</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Sex</th>
+                                            <th scope="col">Phone Number</th>
+                                            {% comment %} <th scope="col">Relationship</th> {% endcomment %}
+                                            <th scope="col">Birth of Date</th>
+                                            <th scope="col">Age</th>
+                                            <th scope="col">Vaccination</th>
+                                            <th scope="col">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for resident_record in residents %}
+                                            {% with resident_record.health_set.first as health_record %}
+                                                {% with resident_record.education_set.first as education_record %}
+                                                    {% with resident_record.economic_set.first as economic_record %}
+                                            <tr>
+                                                <td>{{ start_index|add:forloop.counter0|add:1 }}</td>
+                                                <td style="text-align: center">
+                                                    <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewResident{{ resident_record.id }}">
+                                                        <i class="fa-sharp fa-solid fa-eye"></i>
+                                                    </a>                             
+                                                    {% include 'municipalAdmin/view_resident.html' %}
+                                                </td>
+                                                <td>{{ resident_record.last_name }}, {{ resident_record.first_name }} {{ resident_record.middle_name|slice:":1" }}.{{ resident_record.suffix }}</td>
+                                                <td>{{ resident_record.sex }}</td>
+                                                <td>{{ resident_record.phone_number }}</td>
+                                                {% comment %} <td>{{ resident_record.relationship }}</td> {% endcomment %}
+                                                <td>{{ resident_record.birth_date|date:"F j, Y" }}</td>
+                                                <td>{{ resident_record.age }}</td>
+                                                <td>{{ resident_record.vaccination }}</td>
+                                                <td>{{ resident_record.status }}</td>
+                                            </tr>
+
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                              
+
+                              <div class="text-center-container">
+                                <div class="text-center">
+                                    {% if residents.has_previous %}
+                                    <a class="btn btn-success btn-sm btn-block pagination-link" title="Previous Page" href="{% url 'municipal-admin-resident' %}?page={{ residents.previous_page_number }}">Previous Page</a>
+                                    {% endif %}
+                            
+                                        <button type="button" class="btn btn-outline-secondary btn-sm pagination-link">{{ residents.number }}</button>
+                            
+                                    {% if residents.has_next %}
+                                        <a class="btn btn-success btn-sm btn-block pagination-link" title="Next Page" href="{% url 'municipal-admin-resident' %}?page={{ residents.next_page_number }}">Next Page</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                          </div>   
+                        </div>          
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>  
+    </div>  
+</div>  
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="successModalLabel">Success!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+
+
+<script>
+    const residentProfileCheckboxes = document.querySelectorAll('.resident-profile-checkbox');
+    const residentProfileFieldsPopup = document.getElementById('residentProfileFields');
+
+    function updateResidentProfileOptions() {
+        residentProfileFieldsPopup.innerHTML = '';
+
+        residentProfileCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const residentProfileField = document.createElement('div');
+                residentProfileField.classList.add('resident-profile-field-container');
+
+                const residentProfileLabel = document.createElement('label');
+                residentProfileLabel.innerText = `${checkbox.value}`;
+                residentProfileField.appendChild(residentProfileLabel);
+
+                switch (checkbox.value) {
+                    case 'Name':
+                        const nameInput = document.createElement('input');
+                        nameInput.type = 'text';
+                        nameInput.classList.add('form-control');
+                        nameInput.id = 'id_name';
+                        nameInput.name = 'Name';
+                        residentProfileField.appendChild(nameInput);
+                        break;
+                    case 'Age':
+                        const ageInput = document.createElement('input');
+                        ageInput.type = 'number';
+                        ageInput.classList.add('form-control');
+                        ageInput.id = 'id_age';
+                        ageInput.name = 'age';
+                        residentProfileField.appendChild(ageInput);
+                        break;
+                    case 'Vaccination':
+                        const vaccinationSelect = document.createElement('select');
+                        vaccinationSelect.classList.add('form-control');
+                        vaccinationSelect.id = 'id_vaccination';
+                        vaccinationSelect.name = 'vaccination';
+                        vaccinationSelect.innerHTML = `
+                            <option value="Vaccinated">Vaccinated</option>
+                            <option value="Not Vaccinated">Not Vaccinated</option>
+                        `;
+                        residentProfileField.appendChild(vaccinationSelect);
+                        break;
+                    case 'Sex':
+                        const sexSelect = document.createElement('select');
+                        sexSelect.classList.add('form-control');
+                        sexSelect.id = 'id_sex';
+                        sexSelect.name = 'sex';
+                        sexSelect.innerHTML = `
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        `;
+                        residentProfileField.appendChild(sexSelect);
+                        break;
+                    case 'Status':
+                        const statusSelect = document.createElement('select');
+                        statusSelect.classList.add('form-control');
+                        statusSelect.id = 'id_status';
+                        statusSelect.name = 'status';
+                        statusSelect.classList.add('category-select');
+                        statusSelect.innerHTML = `
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Annuled">Annuled</option>
+                            <option value="Widowed">Widowed</option>
+                            <option value="Separated">Separated</option>
+                            <option value="Common Law/Live-in">Common Law/Live-in</option>
+                            <option value="Unknown">Unknown</option>
+                        `;
+                        residentProfileField.appendChild(statusSelect);
+                        break;
+                }
+
+                residentProfileFieldsPopup.appendChild(residentProfileField);
+            }
+        });
+
+        if (residentProfileFieldsPopup.innerHTML !== '') {
+            residentProfileFieldsPopup.style.display = 'block';
+        } else {
+            residentProfileFieldsPopup.style.display = 'none';
+        }
+    }
+
+    residentProfileCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateResidentProfileOptions);
+    });
+
+</script>
+<script>
+    const economicCheckboxes = document.querySelectorAll('.economic-checkbox');
+    const economicFieldsPopup = document.getElementById('economicFields');
+
+    function updateEconomicOptions() {
+        economicFieldsPopup.innerHTML = '';
+
+        economicCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const economicField = document.createElement('div');
+                economicField.classList.add('economic-field-container');
+
+                const economicLabel = document.createElement('label');
+                economicLabel.innerText = `${checkbox.value}`;
+                economicField.appendChild(economicLabel);
+
+                switch (checkbox.value) {
+                    case 'Working Arrangement':
+                        const workingArrangementSelect = document.createElement('select');
+                        workingArrangementSelect.classList.add('form-control');
+                        workingArrangementSelect.id = 'id_working_arrangement';
+                        workingArrangementSelect.name = 'working_arrangement';
+                        workingArrangementSelect.innerHTML = `
+                            <option value="Work From Home">Work From Home</option>
+                            <option value="Home-based Work">Home-based Work</option>
+                            <option value="On Job Rotation">On Job Rotation</option>
+                            <option value="On a Mixed Arrangement">On a Mixed Arrangement</option>
+                            <option value="On Reduced Hours">On Reduced Hours</option>
+                        `;
+                        economicField.appendChild(workingArrangementSelect);
+                        break;
+                    case 'Nature of Employment':
+                        const natureOfEmploymentSelect = document.createElement('select');
+                        natureOfEmploymentSelect.classList.add('form-control');
+                        natureOfEmploymentSelect.id = 'id_nature_of_employment';
+                        natureOfEmploymentSelect.name = 'nature_of_employment';
+                        natureOfEmploymentSelect.innerHTML = `
+                            <option value="Permanent Job/Business">Permanent Job / Business</option>
+                            <option value="Short Term/Seasonal Job">Short Term/Seasonal Job</option>
+                            <option value="Worked for Different Employers">Worked for Different Employers</option>
+                        `;
+                        economicField.appendChild(natureOfEmploymentSelect);
+                        break;
+                    case 'Class of Worker':
+                        const classOfWorkerSelect = document.createElement('select');
+                        classOfWorkerSelect.classList.add('form-control');
+                        classOfWorkerSelect.id = 'id_economic_class_of_worker';
+                        classOfWorkerSelect.name = 'class_of_worker';
+                        classOfWorkerSelect.innerHTML = `
+                            <option value="Private Household">Private Household</option>
+                            <option value="Private Establishment">Private Establishment</option>
+                            <option value="Government / Corporation">Government / Corporation</option>
+                            <option value="Self - Employed">Self - Employed</option>
+                            <option value="Unemployed">Unemployed</option>
+                            <option value="Employer">Employer</option>
+                            <option value="Family Operated Business">Family Operated Business</option>
+                        `;
+                        economicField.appendChild(classOfWorkerSelect);
+                        break;
+                    case 'Basis of Payment':
+                        const basisOfPaymentSelect = document.createElement('select');
+                        basisOfPaymentSelect.classList.add('form-control');
+                        basisOfPaymentSelect.id = 'id_economic_basis_of_payment';
+                        basisOfPaymentSelect.name = 'basis_of_payment';
+                        basisOfPaymentSelect.innerHTML = `
+                            <option value="Imputed Salary">Imputed Salary</option>
+                            <option value="Per Piece">Per piece</option>
+                            <option value="Per Hour">Per hour</option>
+                            <option value="Per Day">Per day</option>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Weekly">Weekly</option>
+                        `;
+                        economicField.appendChild(basisOfPaymentSelect);
+                        break;
+                    default:
+                        break;
+                }
+
+                economicFieldsPopup.appendChild(economicField);
+            }
+        });
+
+        if (economicFieldsPopup.innerHTML !== '') {
+            economicFieldsPopup.style.display = 'block';
+        } else {
+            economicFieldsPopup.style.display = 'none';
+        }
+    }
+
+    economicCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateEconomicOptions);
+    });
+</script>
+
+<script>
+    const educationCheckboxes = document.querySelectorAll('.education-checkbox');
+    const educationFieldsPopup = document.getElementById('educationFields');
+
+    function updateEducationOptions() {
+        educationFieldsPopup.innerHTML = '';
+
+        educationCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const educationField = document.createElement('div');
+                educationField.classList.add('education-field-container');
+
+                const educationLabel = document.createElement('label');
+                educationLabel.innerText = `${checkbox.value}`;
+                educationField.appendChild(educationLabel);
+
+                switch (checkbox.value) {
+                    case 'Early Childhood':
+                        const earlyChildhoodSelect = document.createElement('select');
+                        earlyChildhoodSelect.classList.add('form-control');
+                        earlyChildhoodSelect.id = 'id_early_childhood_education';
+                        earlyChildhoodSelect.name = 'early_childhood_education';
+                        earlyChildhoodSelect.innerHTML = `
+                            <option value="No Grade Completed">No Grade Completed</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="Kindergarten">Kindergarten</option>
+                        `;
+                        educationField.appendChild(earlyChildhoodSelect);
+                        break;
+                    case 'Primary':
+                    case 'Lower Secondary':
+                    case 'Upper Secondary':
+                        const primarySelect = document.createElement('select');
+                        primarySelect.classList.add('form-control');
+                        primarySelect.id = `id_education_${checkbox.value.toLowerCase().replace(' ', '_')}`;
+                        primarySelect.name = `education_${checkbox.value.toLowerCase().replace(' ', '_')}`;
+                        for (let i = 1; i <= 12; i++) {
+                            const option = document.createElement('option');
+                            option.value = `Grade ${i}`;
+                            option.textContent = `Grade ${i}`;
+                            primarySelect.appendChild(option);
+                        }
+                        educationField.appendChild(primarySelect);
+                        break;
+                    case 'Strands':
+                        const strandsSelect = document.createElement('select');
+                        strandsSelect.classList.add('form-control');
+                        strandsSelect.id = 'id_curriculum_strands';
+                        strandsSelect.name = 'curriculum_strands';
+                        strandsSelect.innerHTML = `
+                            <option value="General Academic Strand">General Academic Strand</option>
+                            <option value="Science Technology Engineering and Mathematics">Science Technology Engineering and Mathematics</option>
+                            <option value="Humanities and Social Sciences">Humanities and Social Sciences</option>
+                            <option value="Sports Track">Sports Track</option>
+                            <option value="Arts and Design">Arts and Design</option>
+                            <option value="Technology and Livelihood Education and Technical - Vocational Livelihood">Technology and Livelihood Education and Technical - Vocational Livelihood</option>
+                        `;
+                        educationField.appendChild(strandsSelect);
+                        break;
+                    case 'Bachelor Education':
+                        const bachelorSelect = document.createElement('select');
+                        bachelorSelect.classList.add('form-control');
+                        bachelorSelect.id = 'id_bachelor_education';
+                        bachelorSelect.name = 'bachelor_education';
+                        for (let i = 1; i <= 4; i++) {
+                            const option = document.createElement('option');
+                            option.value = `${i}st year college`;
+                            option.textContent = `${i}st year college`;
+                            bachelorSelect.appendChild(option);
+                        }
+                        educationField.appendChild(bachelorSelect);
+                        break;
+                    case 'Master and Doctoral':
+                        const masterDoctoralInput = document.createElement('input');
+                        masterDoctoralInput.type = 'text';
+                        masterDoctoralInput.classList.add('form-control');
+                        masterDoctoralInput.id = 'id_master_doctoral_education';
+                        masterDoctoralInput.name = 'master_doctoral_education';
+                        masterDoctoralInput.placeholder = 'Undergraduate';
+                        educationField.appendChild(masterDoctoralInput);
+                        break;
+                    case 'Reason for not Attending':
+                        const reasonSelect = document.createElement('select');
+                        reasonSelect.classList.add('form-control');
+                        reasonSelect.id = 'id_undergraduate_reason';
+                        reasonSelect.name = 'undergraduate_reason';
+                        reasonSelect.innerHTML = `
+                            <option value="Illness">Illness</option>
+                            <option value="Accessibility of school">Accessibility of school</option>
+                            <option value="Disability">Disability</option>
+                            <option value="Pregnancy">Pregnancy</option>
+                            <option value="Marriage">Marriage</option>
+                            <option value="High Cost of Education / financial concern">High Cost of Education / financial concern</option>
+                            <option value="Employment">Employment</option>
+                            <option value="Finished schooling">Finished schooling</option>
+                            <option value="Looking for work">Looking for work</option>
+                            <option value="Lack of personal interest">Lack of personal interest</option>
+                            <option value="Too young to go to school">Too young to go to school</option>
+                            <option value="Bullying">Bullying</option>
+                            <option value="Family Matters">Family Matters</option>
+                        `;
+                        educationField.appendChild(reasonSelect);
+                        break;
+                    default:
+                        break;
+                }
+
+                educationFieldsPopup.appendChild(educationField);
+            }
+        });
+
+        if (educationFieldsPopup.innerHTML !== '') {
+            educationFieldsPopup.style.display = 'block';
+        } else {
+            educationFieldsPopup.style.display = 'none';
+        }
+    }
+
+    educationCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateEducationOptions);
+    });
+</script>
+
+<script>
+    const healthCheckboxes = document.querySelectorAll('.health-checkbox');
+    const healthFieldsPopup = document.getElementById('healthFields');
+
+    function updatehealthOptions() {
+        healthFieldsPopup.innerHTML = '';
+
+        healthCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const healthField = document.createElement('div');
+                healthField.classList.add('health-field-container');
+
+                const healthLabel = document.createElement('label');
+                healthLabel.innerText = `${checkbox.value}`;
+                healthField.appendChild(healthLabel);
+
+                switch (checkbox.value) {
+                    case 'Disability':
+                        const disabilitySelect = document.createElement('select');
+                        disabilitySelect.classList.add('form-control');
+                        disabilitySelect.id = 'id_health__disability';
+                        disabilitySelect.name = 'health__disability';
+                        disabilitySelect.classList.add('category-select');
+                        disabilitySelect.innerHTML = `
+                            <option value="Visual Disability">Visual Disability</option>
+                            <option value="Hearing Disability">Hearing Disability</option>
+                            <option value="Intellectual Disability">Intellectual Disability</option>
+                            <option value="Learning Disability">Learning Disability</option>
+                            <option value="Mental Disability">Mental Disability</option>
+                            <option value="Physical Disability">Physical Disability</option>
+                            <option value="Psychosocial Disability">Psychosocial Disability</option>
+                            <option value="Speech and Language Impairment">Speech and Language Impairment</option>
+                        `;
+                        healthField.appendChild(disabilitySelect);
+                        break;
+                    case 'Illness':
+                        const illnessSelect = document.createElement('select');
+                        illnessSelect.classList.add('form-control');
+                        illnessSelect.id = 'id_health__illness';
+                        illnessSelect.name = 'health__illness';
+                        illnessSelect.classList.add('category-select');
+                        illnessSelect.innerHTML = `
+                            <option value="Cancer">Cancer</option>
+                            <option value="Hypertension">Hypertension</option>
+                            <option value="Tuberculosis (TB)">Tuberculosis (TB)</option>
+                            <option value="Self-Acute Respiratory Infection">Self-Acute Respiratory Infection</option>
+                            <option value="Acute Gastroenteritis">Acute Gastroenteritis</option>
+                            <option value="Common Colds, Cough, Flu/Fever">Common Colds, Cough, Flu/Fever</option>
+                            <option value="Cut/Wound">Cut/Wound</option>
+                            <option value="Burn">Burn</option>
+                            <option value="Fracture">Fracture</option>
+                            <option value="Dislocation">Dislocation</option>
+                            <option value="Surgical Illness">Surgical Illness</option>
+                            <option value="Covid-19">Covid-19</option>
+                        `;
+                        healthField.appendChild(illnessSelect);
+                        break;
+                    default:
+                        break;
+                }
+
+                healthFieldsPopup.appendChild(healthField);
+            }
+        });
+
+        if (healthFieldsPopup.innerHTML !== '') {
+            healthFieldsPopup.style.display = 'block';
+        } else {
+            healthFieldsPopup.style.display = 'none';
+        }
+    }
+
+    healthCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updatehealthOptions);
+    });
+</script>
+
+{% comment %} <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Attach an event listener to the pagination links
+        document.getElementById('resident-table-container').addEventListener('click', function (event) {
+            // Check if the clicked element is a pagination link
+            if (event.target.tagName.toLowerCase() === 'a' && event.target.classList.contains('pagination-link')) {
+                event.preventDefault(); // Prevent the default behavior of the link
+
+                // Fetch the content of the clicked link using AJAX
+                var url = event.target.getAttribute('href');
+                fetch(url)
+                    .then(response => response.text())
+                    .then(data => {
+                        // Replace the content of the container with the fetched data
+                        document.getElementById('resident-table-container').innerHTML = data;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    });
+</script> {% endcomment %}
+{% endblock content %}

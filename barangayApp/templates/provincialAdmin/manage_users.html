@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+<style>
+    #wrapper{
+        overflow-x: hidden;
+        background-color: #f3f6fd;
+    }
+    .text-center-container {
+        padding-top: 15px; 
+      }
+</style>
+
+<div class="d-flex" id="wrapper">
+    
+    {% include 'provincialAdmin/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">List of Users</div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div>
+                            <button class="btn btn-success btn-md btn-block" title="Register User" data-bs-toggle="modal" data-bs-target="#registerUser">Register User</button>
+                        </div>
+                        
+                        {% include 'provincialAdmin/register_user.html' %} 
+                        
+                            <br>
+                            <div style="overflow-x:auto table-Layout:fixed">
+                                <div class="row table-container">
+                                      <table class="table table-striped ">
+                                        <thead>
+                                        <tr>                                            
+                                            <th scope="col">Username</th>
+                                            <th scope="col">User Type</th>    
+                                            <th scope="col">Date Added</th>                 
+                                            <th scope="col">Status</th>                
+                                            <th scope="col">Assigned Municipal</th>                  
+                                            <th class="sticky-header" scope="col" style="text-align: center;">Action</th> 
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for i, form in users  %}
+                                            <tr>                                                 
+                                                <td>{{i.username}}</td>
+                                                <td>{{i.user_type}}</td>
+                                                <td>{{i.date_joined}}</td>
+                                                <td>{{i.is_active}}</td>
+                                                <td>{{i.municipal.name}}</td>
+                                                <td style="text-align: center">
+                                                    {% comment %} <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewUser{{ i.id }}">
+                                                        <i class="fa-sharp fa-solid fa-eye"></i>
+                                                    </a>                                        
+                                                    {% include 'provincialAdmin/view_user.html' %}    {% endcomment %}
+                                                    <a class="btn btn-success btn-sm btn-block" title="Edit" data-bs-toggle="modal" data-bs-target="#editUser{{ i.id }}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                    
+                                                    {% include 'provincialAdmin/edit_user.html' %}                          
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                    </tbody>
+                                    </table>    
+                                </div> 
+                            </div>
+                            <div class="text-center-container">
+                                <div class="text-center">
+                                    {% if page_obj.has_previous %}
+                                        {% if page_obj.number > 1 %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Previous Page" href="{% url 'provincial-admin-manage-user-page' page=page_obj.previous_page_number %}">Previous Page</a>
+                                        {% else %}
+                                            <button class="btn btn-success btn-sm btn-block" disabled style="opacity: 0.5; cursor: not-allowed;">Previous Page</button>
+                                        {% endif %}
+                                    {% else %}
+                                        <button class="btn btn-success btn-sm btn-block" disabled style="opacity: 0.5; cursor: not-allowed;">Previous Page</button>
+                                    {% endif %}
+                                                                                            
+                                    <button type="button" class="btn btn-outline-secondary btn-sm">{{ page_obj.number }}</button>
+                                                                                            
+                                    {% if page_obj.has_next %}
+                                        <a class="btn btn-success btn-sm btn-block" title="Next Page" href="{% url 'provincial-admin-manage-user-page' page=page_obj.next_page_number %}">Next Page</a>
+                                    {% else %}
+                                        <button class="btn btn-success btn-sm btn-block" disabled style="opacity: 0.5; cursor: not-allowed;">Next Page</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            </div>          
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>                          
+</div>    
+{% endblock %}

@@ -1,0 +1,18 @@
+
+var latitude{{ tourist_spot.id }} = {{ tourist_spot.latitude }};
+var longitude{{ tourist_spot.id }} = {{ tourist_spot.longitude }};
+var name{{ tourist_spot.id }} = '{{ tourist_spot.name }}';
+var description{{ tourist_spot.id }} = '{{ tourist_spot.description|escapejs }}';
+var tourist_spotType{{ tourist_spot.id }} = '{{ tourist_spot.tourist_spot_type }}';
+var photoUrl{{ tourist_spot.id }} = '{% if tourist_spot.photo %}{{ tourist_spot.photo.url }}{% else %}/media/tourist_spot_photos/FB_IMG_1692936618339.jpg{% endif %}';
+var popupContent{{ tourist_spot.id }} = `
+    <div style="max-width: 300px;">
+        <h4>${name{{ tourist_spot.id }}}</h4>
+        <p>${description{{ tourist_spot.id }}}</p>
+        <p><strong>tourist_spot Type:</strong> ${tourist_spotType{{ tourist_spot.id }}}</p>
+        <img src="${photoUrl{{ tourist_spot.id }}}" alt="${name{{ tourist_spot.id }}}" style="max-width: 100%;">
+    </div>
+`;
+L.marker([latitude{{ tourist_spot.id }}, longitude{{ tourist_spot.id }}]).addTo(map1)
+    .bindPopup(popupContent{{ tourist_spot.id }});
+{% endfor %}

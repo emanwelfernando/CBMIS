@@ -1,0 +1,13 @@
+{% extends 'provincialAdmin/add_municipal.html' %}
+
+{% block modal-id %} id="editMunicipal{{ i.id }}" {% endblock modal-id %}
+
+{% block modal-title %}Edit Barangay{% endblock modal-title %}
+
+{% block action %} action="{% url 'provincial-admin-edit-municipal' pk=i.id %}" {% endblock action %}
+
+{% block btn-action %}Save Changes{% endblock btn-action %}
+
+{% block Value-name %} value="{{ i.name }}" {% endblock Value-name %}
+
+{% block Value-zip_code %} value="{{ i.zip_code }}" {% endblock Value-zip_code %}

@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load geojson_tags %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+<style>
+    #wrapper{
+        overflow-x: hidden;
+        background-color: #f2f2f2;
+    }
+    .text-center-container {
+        padding-top: 15px; 
+    }
+
+    #wrapper {
+        overflow-x: hidden;
+        background-color: #f3f6fd;
+    }
+
+    .text-center-container {
+        padding-top: 15px;
+    }
+    
+    #tourist_spots-filter-form .form-control,
+    #tourist_spots-filter-form select {
+        width: 235px;
+    }
+    
+    #tourist_spots-filter-form .age-range-input {
+        width: 100px;
+    }
+    
+    .age-range-wrapper {
+        display: flex;
+        gap: 1px;
+    }  
+    
+    .age-range-input {
+        flex: 1;
+        max-width: 100px;
+    }
+
+    .leaflet-control-attribution svg {
+    width:0
+    }
+</style>
+
+<div class="d-flex" id="wrapper">
+    
+    {% include 'tourist_spots/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">Municipal of {{ request.user.municipal }} Tourist Spots</div>
+                            </div>
+                        </div>
+                        <br>
+
+
+                          <form method="get" action="{% url 'tourist-staff-tourist-spots' %}" class="row g-3">
+                           
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                       
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_tourist_spot_name" class="form-label">Tourist Spot Name:</label>
+                                            {{ Tourist_spotsFilter.form.name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_tourist_spot_type" class="form-label">Tourist Spot Type:</label>
+                                            {{ Tourist_spotsFilter.form.spot_type }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                       
+                                    </div>
+
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success btn-md btn-block">Search</button>
+                                <button type="button" class="btn btn-success btn-md btn-block" onclick="clearFilter()">Clear</button>
+                            </div>
+                        </form>
+                            <button type="button" class="btn btn-success btn-lg" title="Add tourist_spots" id="mainfront" data-bs-toggle="modal" data-bs-target="#addTourist_spots">Add Tourist Spot</button>
+                            
+                            {% include 'tourist_spots/add_tourist_spot.html' %}
+                          
+
+                          <br>
+                        <div id="map1" style="height: 300px;"></div>
+                        
+                        <div class="row table-container">
+                            <table class="table" style="overflow-x: auto;">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>                           
+                                        <th class="sticky-header" scope="col" style="text-align: center;">Action</th>                               
+                                        <th scope="col">Tourist Spot Name</th>
+                                        <th scope="col">Spot Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tourist_spot in tourist_spots %}
+                                        <tr>
+                                            <td>{{ start_index|add:forloop.counter0|add:1 }}</td>
+                                            <td style="text-align: center">
+                                                <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewTourist_spots{{ tourist_spot.id }}">
+                                                    <i class="fa-sharp fa-solid fa-eye"></i>
+                                                </a>                             
+                                                {% include 'tourist_spots/view_tourist_spot.html' %}
+                                                <a class="btn btn-success btn-sm btn-block edit-tourist-btn" title="Edit" data-bs-toggle="modal" data-bs-target="#editTourist_spots{{ tourist_spot.id }}" data-tourist-id="{{ tourist_spot.id }}">
+                                                <i class="fas fa-pen"></i>
+                                                </a>                                                                        
+                                                <a class="btn btn-success btn-sm btn-block" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteTourist_spots{{ tourist_spot.id }}">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </a>
+                                            </td>
+                                            <td>{{tourist_spot.name}}</td>
+                                            <td>{{tourist_spot.spot_type}}</td>
+                                        </tr>
+                                                {% include 'tourist_spots/edit_tourist_spot.html' %}
+                                                {% include 'tourist_spots/delete_tourist_spot.html' %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                            <div class="text-center-container">
+                                <div class="text-center">
+                                    {% if tourist_spots.has_previous %}
+                                        <a class="btn btn-success btn-sm btn-block pagination-link" title="Previous Page" href="{% url 'municipal-staff-tourist_spots' %}?page={{ tourist_spots.previous_page_number }}">Previous Page</a>
+                                    {% endif %}
+                                        <button type="button" class="btn btn-outline-secondary btn-sm pagination-link">{{ tourist_spots.number }}</button>
+                                    {% if tourist_spots.has_next %}
+                                        <a class="btn btn-success btn-sm btn-block pagination-link" title="Next Page" href="{% url 'municipal-staff-tourist_spots' %}?page={{ tourist_spots.next_page_number }}">Next Page</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                          </div>          
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>                          
+</div>    
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
+
+<script>
+    var municipal_geojson_{{ user.municipal.id }} = {{ user.municipal.geom|geojsonfeature|safe }};
+    var map1 = L.map('map1').setView([11.635, 124.4849], 10);
+
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map1);
+
+    var municipalLayer = L.geoJson(municipal_geojson_{{ user.municipal.id }}).addTo(map1);
+    map1.fitBounds(municipalLayer.getBounds());
+
+    {% for tourist_spot in tourist_spots %}
+        var latitude{{ tourist_spot.id }} = {{ tourist_spot.latitude }};
+        var longitude{{ tourist_spot.id }} = {{ tourist_spot.longitude }};
+        var name{{ tourist_spot.id }} = '{{ tourist_spot.name }}';
+        var description{{ tourist_spot.id }} = '{{ tourist_spot.description|escapejs }}';
+        var tourist_spotType{{ tourist_spot.id }} = '{{ tourist_spot.tourist_spot_type }}';
+        var photoUrl{{ tourist_spot.id }} = '{% if tourist_spot.photo %}{{ tourist_spot.photo.url }}{% else %}/media/tourist_spot_photos/FB_IMG_1692936618339.jpg{% endif %}';
+        var popupContent{{ tourist_spot.id }} = `
+            <div style="max-width: 300px;">
+                <h4>${name{{ tourist_spot.id }}}</h4>
+                <p>${description{{ tourist_spot.id }}}</p>
+                <p><strong>tourist_spot Type:</strong> ${tourist_spotType{{ tourist_spot.id }}}</p>
+                <img src="${photoUrl{{ tourist_spot.id }}}" alt="${name{{ tourist_spot.id }}}" style="max-width: 100%;">
+            </div>
+        `;
+        L.marker([latitude{{ tourist_spot.id }}, longitude{{ tourist_spot.id }}]).addTo(map1)
+            .bindPopup(popupContent{{ tourist_spot.id }});
+        {% endfor %}
+</script>
+
+<script>
+    
+    $('#addTourist_spots').on('shown.bs.modal', function() {
+        var map3 = L.map('map3').setView([11.5865, 124.4849], 16);
+        var googleSat2 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map3);
+    
+        var municipalLayer = L.geoJson(municipal_geojson_{{ user.municipal.id }}).addTo(map3);
+        map3.fitBounds(municipalLayer.getBounds());
+    
+        var marker;
+    
+        map3.on('click', function(e){
+            if(marker) {
+                map3.removeLayer(marker);
+            }
+            marker = new L.marker(e.latlng).addTo(map3);
+        
+            document.getElementById('latitude').value = e.latlng.lat;
+            document.getElementById('longitude').value = e.latlng.lng;
+        
+            // Update displayed values
+            document.getElementById('latitudeDisplay').value = e.latlng.lat;
+            document.getElementById('longitudeDisplay').value = e.latlng.lng;
+        });
+    });
+</script>
+
+<script>
+    $('.edit-tourist-btn').on('click', function() {
+        var touristSpotId = $(this).data('tourist-id');
+        var modal = $('#editTourist_spots' + touristSpotId);
+    
+        var map2 = L.map('map2-' + touristSpotId);
+    
+        var latitude = parseFloat($('#latitude-' + touristSpotId).val());
+        var longitude = parseFloat($('#longitude-' + touristSpotId).val());
+    
+        // Define the LatLng and zoom level here
+        var latLng = [latitude, longitude];
+        var zoomLevel = 17;
+    
+        var googleSat2 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map2);
+    
+        // Fit the map to the bounds of the barangay layer
+    
+        var municipalLayer = L.geoJson(municipal_geojson_{{ user.municipal.id }}).addTo(map2);
+        map2.fitBounds(municipalLayer.getBounds());
+        map2.setView(latLng, zoomLevel);
+    
+        var marker;
+    
+        // Get the latitude and longitude values if they exist
+        var latitude = parseFloat($('#latitude-' + touristSpotId).val());
+        var longitude = parseFloat($('#longitude-' + touristSpotId).val());
+        if (!isNaN(latitude) && !isNaN(longitude)) {
+            marker = new L.marker([latitude, longitude]).addTo(map2);
+        }
+    
+        map2.on('click', function(e) {
+            if (marker) {
+                map2.removeLayer(marker);
+            }
+            marker = new L.marker(e.latlng).addTo(map2);
+    
+            $('#latitude-' + touristSpotId).val(e.latlng.lat);
+            $('#longitude-' + touristSpotId).val(e.latlng.lng);
+    
+            // Update displayed values
+            $('#latitudeDisplay-' + touristSpotId).val(e.latlng.lat);
+            $('#longitudeDisplay-' + touristSpotId).val(e.latlng.lng);
+        });
+    
+        // Ensure the map renders properly after modal is shown
+        $('#editTourist_spots' + touristSpotId).on('shown.bs.modal', function() {
+            map2.invalidateSize();
+        });
+    });
+    
+</script>
+
+
+<script>
+    $('#addTourist_spots').on('shown.bs.modal', function() {
+        map.invalidateSize();
+    });
+
+</script>
+{% endblock %}

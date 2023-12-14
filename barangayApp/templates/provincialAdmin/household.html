@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+{% comment %} <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script> {% endcomment %}
+
+
+
+<style>
+
+    #wrapper {
+        overflow-x: hidden;
+        background-color: #f3f6fd;
+    }
+
+    .text-center-container {
+        padding-top: 15px;
+    }
+    
+    #household-filter-form .form-control,
+    #household-filter-form select {
+        width: 220px;
+    }
+    
+    #household-filter-form .age-range-input {
+        width: 100px;
+    }
+    
+    .age-range-wrapper {
+        display: flex;
+        gap: 1px;
+    }  
+    
+    .age-range-input {
+        flex: 1;
+        max-width: 100px;
+    }
+    .map-container {
+        flex-grow: 1;
+        height: 100%;
+    }
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+
+    .leaflet-control-attribution svg {
+    width:0
+    }
+</style>  
+
+<div id="filtered-results">
+<div class="d-flex" id="wrapper">
+    
+    {% include 'provincialAdmin/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">Province of Biliran Household Information</div>
+                            </div>
+                        </div>
+                        <br>
+                        <form method="get" action="{% url 'provincial-admin-household' %}" class="row g-3" id="household-filter-form">
+                            <div class="col-md-3">
+                                <!-- Municipal filter -->
+                                <div class="mb-3">
+                                    <label for="id_municipal" class="form-label">Municipal</label>
+                                    <div id="id_municipal_wrapper">
+                                        {{ household_filter.form.municipal }}
+                                    </div>
+                                </div>
+                              
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="id_barangay" class="form-label">Barangay</label>
+                                    <div id="id_barangay_wrapper"> 
+                                        {{ household_filter.form.barangay }}
+                                    </div>
+                                </div>
+                              
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_household_head__full_name" class="form-label">Household Head Name:</label>
+                                            {{ household_filter.form.household_head__full_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_members__full_name" class="form-label">Members Name:</label>
+                                            {{ household_filter.form.members__full_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_Members_with_disability" class="form-label">Members with Disability:</label>
+                                            {{ household_filter.form.num_Members_with_disability }}
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_monthly_income_range" class="form-label">Monthly Income Range:</label>
+                                            {{ household_filter.form.monthly_income_range }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_senior_citizens_0" class="form-label">Senior Citizens:</label>
+                                            {{ household_filter.form.num_senior_citizens }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_pregnant_lactating_mothers_0" class="form-label">Pregnant/Lactating Mothers:</label>
+                                            {{ household_filter.form.num_pregnant_lactating_mothers }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_registered_voters" class="form-label">Registered Voters:</label>
+                                            {{ household_filter.form.num_registered_voters }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_housing_condition" class="form-label">Housing Condition:</label>
+                                            {{ household_filter.form.housing_condition }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_education_level_of_head" class="form-label">Head Education Level:</label>
+                                            {{ household_filter.form.education_level_of_head }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_access_to_basic_amenities" class="form-label">Access To Basic Amenities:</label>
+                                            {{ household_filter.form.access_to_basic_amenities }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_ownership_of_assets" class="form-label">Ownership of Assets:</label>
+                                            {{ household_filter.form.ownership_of_assets }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_household_type" class="form-label">Household Type:</label>
+                                            {{ household_filter.form.household_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success btn-md btn-block" id="filter-button">Filter</button>
+                                <button type="button" class="btn btn-success btn-md btn-block" onclick="clearFilter()">Clear</button>
+                                <a href="{% url 'barangay-staff-excel-household' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-md btn-block">Export Excel</a>
+                                <a href="{% url 'barangay-staff-pdf-household' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-md btn-block">Export PDF</a>
+                            </div>
+                        </form>
+                        <hr>
+                        <div> 
+                     
+                            
+                    <div id="map" style="height: 300px;"></div>
+                    <br>
+                            <div style="overflow-x:auto table-Layout:fixed">
+                                <div class="row table-container">
+                                      <table class="table">
+                                        <thead>
+                                        <tr>            
+                                            <th scope="col">#</th>                                     
+                                            <th class="sticky-header" scope="col" style="text-align: center;">Action</th>                               
+                                            <th scope="col">Head</th>
+                                            <th scope="col">Members</th>
+                                            <th scope="col">Number of Senior Citizens</th>
+                                            <th scope="col">Number of Pregnant/ Lactating Mothers</th>
+                                            <th scope="col">Number of Members with Disabilities</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for household in households %}
+                                            <tr> 
+                                                <td>{{ start_index|add:forloop.counter0|add:1 }}</td>
+                                                <td style="text-align: center">
+                                                    <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewHousehold{{ household.id }}">
+                                                        <i class="fa-sharp fa-solid fa-eye"></i>
+                                                    </a>                                         
+                                                    {% include 'barangayStaff/view_household.html' %}   
+                                                </td>
+                                                <td>{{household.household_head}}</td>
+                                                <td>
+                                                    {% for member in household.members.all %}
+                                                    <div>
+                                                        {{ member.first_name }} {{ member.last_name }}
+                                                    </div>
+                                                {% endfor %}
+                                                </td>
+                                                <td>{{household.num_senior_citizens }}</td>
+                                                <td>{{household.num_pregnant_lactating_mothers}}</td>
+                                                <td>{{household.num_Members_with_disability}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    </table>    
+                                </div>
+                                                                
+                                <div class="text-center-container">
+                                    <div class="text-center">
+                                        {% if households.has_previous %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Previous Page" href="{% url 'provincial-admin-household' %}?page={{ households.previous_page_number }}">Previous Page</a>
+                                        {% endif %}
+                                
+                                        <button type="button" class="btn btn-outline-secondary btn-sm">{{ households.number }}</button>
+                                
+                                        {% if households.has_next %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Next Page" href="{% url 'provincial-admin-household' %}?page={{ households.next_page_number }}">Next Page</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>          
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>                       
+</div>                       
+</div>    
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    var map = L.map('map').setView([11.635, 124.4849], 10);
+
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map);
+
+    var selectedMunicipalId = document.getElementById('id_municipal').value;
+    var selectedBarangayId = document.getElementById('id_barangay').value;
+
+    if (selectedMunicipalId + selectedBarangayId != 0) {
+        // Function to add household markers to the map
+        function addHouseholdMarkersToMap(householdData) {
+            for (var i = 0; i < householdData.length; i++) {
+                var household = householdData[i];
+                L.marker([household.latitude, household.longitude]).addTo(map)
+                    .bindPopup('Household Head: ' + household.head_name);
+            }
+        }
+    
+        // Retrieve household data and add markers when needed (e.g., after filtering)
+        function retrieveAndAddHouseholdMarkers() {
+            var householdData = JSON.parse('{{ household_data_json|escapejs }}');
+            addHouseholdMarkersToMap(householdData);
+        }
+    
+        // Call the function to retrieve and add household markers
+        retrieveAndAddHouseholdMarkers();
+    }
+    
+    var selectedMunicipalId = document.getElementById('id_municipal').value;
+    var selectedBarangayId = document.getElementById('id_barangay').value;
+
+    if (selectedBarangayId != 0) {
+        {% for household in households %}
+            if ({{ household.barangay.id }} == selectedBarangayId) {
+                var barangay_geojson_{{ household.id }} = {{ household.barangay.geom.geojson|safe }};
+                
+                // Modify the style of the GeoJSON feature
+                var geojsonLayer = L.geoJSON(barangay_geojson_{{ household.id }});
+                geojsonLayer.setStyle({
+                    fill: false, // Remove the fill color
+                    color: 'blue', // Set the border color (adjust as needed)
+                    weight: 2, // Set the border width (adjust as needed)
+                });
+                
+                geojsonLayer.addTo(map);
+                map.fitBounds(geojsonLayer.getBounds());
+            }
+        {% endfor %}
+    } else if (selectedMunicipalId != 0) {
+        {% for household in households %}
+        if ({{ household.municipal.id }} == selectedMunicipalId) {
+            var municipal_geojson_{{ household.id }} = {{ household.municipal.geom.geojson|safe }};
+            
+            // Modify the style of the GeoJSON feature
+            var geojsonLayer = L.geoJSON(municipal_geojson_{{ household.id }});
+            geojsonLayer.setStyle({
+                fill: false, // Remove the fill color
+                color: 'blue', // Set the border color (adjust as needed)
+                weight: 3, // Set the border width (adjust as needed)
+            });
+            
+            geojsonLayer.addTo(map);
+            map.fitBounds(geojsonLayer.getBounds());
+        }
+        {% endfor %}
+       
+    }
+</script>
+
+
+
+<script>
+    // Function to update the barangay dropdown options based on the selected municipal
+   function updateBarangayOptions() {
+        var selectedMunicipalId = $('#id_municipal').val();
+        var barangaySelect = $('#id_barangay');
+
+        barangaySelect.empty(); // Clear existing options
+
+        var allOption = $('<option>', {value: '', text: 'All'});
+        barangaySelect.append(allOption);
+
+        var barangays = JSON.parse('{{ barangays_json|escapejs }}');
+        for (var i = 0; i < barangays.length; i++) {
+            if (barangays[i].municipal_id == selectedMunicipalId) {
+                var option = $('<option>', {value: barangays[i].id, text: barangays[i].name});
+                barangaySelect.append(option);
+            }
+        }
+    }
+
+    $(document).ready(function() {
+        updateBarangayOptions();
+
+        $('#id_municipal').on('change', function() {
+            updateBarangayOptions();
+        });
+
+        function updateFilterFields() {
+            var filterOptions = $('#filter-options');
+            var filterFields = $('.filter-field');
+
+            filterFields.hide();
+
+            var selectedOptions = filterOptions.val() || [];
+
+            selectedOptions.forEach(function(option) {
+                var field = $('#' + option + '-filter');
+                if (field.length) {
+                    field.show();
+                }
+            });
+        }
+
+        updateFilterFields();
+        
+        $('#filter-options').on('change', function() {
+            updateFilterFields();
+        });
+    });
+    
+        function clearFilter() {
+        document.getElementById("household-filter-form").reset();
+        
+        var municipalSelect = document.getElementById('id_municipal');
+        var barangaySelect = document.getElementById('id_barangay');
+        var selectedMunicipalId = municipalSelect.value;
+    
+        while (barangaySelect.options.length > 0) {
+            barangaySelect.remove(0);
+        }
+    
+        var allOption = document.createElement('option');
+        allOption.value = '';
+        allOption.text = 'All';
+        barangaySelect.add(allOption);
+    
+      
+        updateBarangayOptions();
+        updateFilterFields();
+    }
+    
+</script>
+
+<script>
+
+    function clearFilter() {
+        document.getElementById("household-filter-form").reset();
+
+        // Reset select2 fields
+            // Reset select2 fields
+            $("#id_municipal_wrapper select").val(null).trigger("change");
+            $("#id_barangay_wrapper select").val(null).trigger("change");
+    
+            // Clear the value of the "Name Contains" field
+            $("#id_name_contains").val("");
+        updateFilterFields(); // Update the filter fields after clearing
+    }
+
+    window.clearFilter = clearFilter; // Expose clearFilter function to global scope
+
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to clear the filter form fields
+        function clearFilter() {
+            // Reset select2 fields
+            $("#id_municipal_wrapper select").val(null).trigger("change");
+            $("#id_barangay_wrapper select").val(null).trigger("change");
+    
+            // Clear the value of the "Name Contains" field
+            $("#id_name_contains").val("");
+    
+            // Update the filter options visibility
+            updateFilterOptions();
+        }
+    
+        window.clearFilter = clearFilter; // Expose clearFilter function to global scope
+    });
+    
+</script>
+<script>
+    $('#household-filter-form').submit(function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        // Get form data
+        var formData = $(this).serialize();
+
+        // Send AJAX request
+        $.ajax({
+            type: 'GET',
+            url: '{% url 'provincial-admin-household' %}',  // Your Django view URL
+            data: formData,
+            success: function(data) {
+                $('#filtered-results').html(data); // Update the table content
+                updateFilterFields(); // Update the filter fields after form submission
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+</script>
+{% endblock %}

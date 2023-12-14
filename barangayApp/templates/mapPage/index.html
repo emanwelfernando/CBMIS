@@ -1,0 +1,756 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'gallery/800px-Biliran_Provincial_Seal.png' %}" rel="icon">
+    <title>CBMIS</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+
+    <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+            color: #444444;
+          }          
+
+        /* Add the new sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 56px; /* Adjusted to account for the navbar height */
+            left: 0;
+            width: 30%;
+            height: calc(100% - 56px); /* Adjusted to fill the remaining height */
+            background-color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            border-top-right-radius: 10px; /* Add rounded corners to the top right */
+            border-bottom-right-radius: 10px; /* Add rounded corners to the bottom right */
+        }
+            
+        .sidebar.show {
+            transform: translateX(0);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: auto;
+        }
+        
+        .sidebar .close-button {
+            display: block;
+            margin-top: 20px;
+            padding: 8px 16px;
+            font-size: 1rem;
+            background-color: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .sidebar .close-button:hover {
+            background-color: #ccc;
+        }
+        
+        .popup-container {
+            position: absolute;
+        }
+    
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    
+        .popup {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .login-button {
+            display: block;
+            width: fit-content;
+            margin: 8px 0;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #ccc;
+        }
+
+        .navbar-login-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        .back-button {
+            display: block;
+            width: fit-content;
+            margin: 8px 0;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        .back-button:hover {
+            background-color: #ccc;
+        }
+    
+        .popup-overlay {
+            display: none;
+            position: relative;
+            top: auto; /* Set top to 'auto' to allow the bottom property to take effect */
+            bottom: -35px;
+            left: 50%; /* Adjust this value to center the popup horizontally */
+            transform: translateX(-115%);
+            width: 300px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+        
+        #popup-overlay {
+            display: none;
+          }
+        
+        .popup {
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .popup .app-launcher button {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            text-align: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+
+        .popup .app-launcher button:hover {
+        background-color: #f0f0f0;
+        }
+
+        .popup .login-form input {
+        display: block;
+        width: 100%; /* Set the width to 100% */
+        margin: 8px 0;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        }
+
+
+        .login-form input {
+            display: block;
+            width: 100%; /* Set the width to 100% */
+            margin: 8px 0;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        /* Map Styles */
+        .map-container {
+            width: 100%; /* Adjust the width as needed */
+            height: 100vh; /* Use 100% of the viewport height */
+            margin: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Place the map behind other elements */
+        }
+    
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    
+        .leaflet-control-coordinate {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    
+        .leaflet-bottom.leaflet-right {
+            right: 10px;
+        }
+    
+        /* Navbar Styles */
+        .navbar {
+            z-index: 1000; /* Ensure the navbar is above other elements */
+        }
+    
+        .navbar-nav {
+            margin-left: auto; /* Push the navbar items to the right */
+        }
+    
+        .nav-link.active {
+            text-decoration: none;
+        }
+        
+        .navbar-nav .nav-link {
+            text-decoration: none;
+            padding: .5rem 1rem;
+        }
+    
+        .navbar-toggler-icon {
+            color: white;
+        }
+        
+        .custom-marker {
+            width: 30px;
+            height: 30px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+            cursor: pointer;
+        }
+        
+
+        #header {
+            background-color: transparent !important;
+            transition: all 0.5s;
+            z-index: 997;
+            height: 70px;
+        }
+          
+        #header.header-scrolled {
+            box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+        }
+          
+        #header .logo {
+            font-size: 30px;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+          
+        #header .logo a {
+            color: #5cb874;
+        }
+          
+        #header .logo img {
+            max-height: 40px;
+        }
+          
+        .scrolled-offset {
+            margin-top: 70px;
+        }
+          
+        .navbar {
+            padding: 0;
+          
+        }
+          
+        .navbar ul {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+          
+        .navbar li {
+            position: relative;
+        }
+          
+        .navbar a,
+        .navbar a:focus {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0 10px 30px;
+            font-size: 15px;
+            color: #222222;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+          
+        .navbar a i,
+        .navbar a:focus i {
+            font-size: 12px;
+            line-height: 0;
+            margin-left: 5px;
+        }
+          
+        .navbar a:hover,
+        .navbar .active,
+        .navbar .active:focus,
+        .navbar li:hover>a {
+            color: #5cb874;
+        }
+          
+        .navbar .getstarted,
+        .navbar .getstarted:focus {
+            color: #fff;
+              padding: 8px 25px;
+              margin-left: 30px;
+              border-radius: 4px;
+              border: 2px solid #5cb874;
+              transition: 0.3s;
+              font-size: 14px;
+              background: #5cb874; /* Add background color */
+        }
+          
+        .navbar .getstarted:hover,
+        .navbar .getstarted:focus:hover {
+              background: #4cae4c; /* Change the background color on hover/focus */
+              color: #fff;
+        }
+          
+          
+        .navbar .dropdown ul {
+            display: block;
+            position: absolute;
+            left: 14px;
+            top: calc(100% + 30px);
+            margin: 0;
+            padding: 10px 0;
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            background: #fff;
+            box-shadow: 0px 0px 30px rgba(127, 137, 161, 0.25);
+            transition: 0.3s;
+        }
+          
+        .navbar .dropdown ul li {
+            min-width: 200px;
+        }
+          
+        .navbar .dropdown ul a {
+            padding: 10px 20px;
+            text-transform: none;
+        }
+          
+        .navbar .dropdown ul a i {
+            font-size: 12px;
+        }
+        
+        .navbar .dropdown ul a:hover,
+        .navbar .dropdown ul .active:hover,
+        .navbar .dropdown ul li:hover>a {
+            color: #5cb874;
+        }
+          
+        .navbar .dropdown:hover>ul {
+            opacity: 1;
+            top: 100%;
+            visibility: visible;
+        }
+          
+        .navbar .dropdown .dropdown ul {
+            top: 0;
+            left: calc(100% - 30px);
+            visibility: hidden;
+        }
+          
+        .navbar .dropdown .dropdown:hover>ul {
+            opacity: 1;
+            top: 0;
+            left: 100%;
+            visibility: visible;
+        }
+          
+        a {
+            text-decoration: none;
+            color: #5cb874;
+        }
+        
+        a:hover {
+            color: #80c792;
+            text-decoration: none;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+          }
+          
+          .filter-form .row {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+          }
+          
+          .filter-form .col-md-6 {
+            width: 50%;
+            padding: 5px;
+          }
+          
+          .filter-form button {
+            background-color: #40bf80; /* Your desired button color */
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+          }
+          
+          /* Adjust the following styles based on your design preferences */
+          .filter-form input,
+          .filter-form select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+          }
+          
+        #header.transparent .filter-form {
+            display: flex;
+            align-items: center;
+        }
+
+        #header.transparent .filter-form .row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        #header.transparent .filter-form .col-md-4 {
+            padding: 0 10px;
+        }
+        .navbar .btn-search,
+        .navbar .btn-search:focus {
+            border-color: #5cb874;
+            border-width: 2px;
+            color: #fff; /* Set text color to white */
+            font-size: 14px; /* Adjust the font size as needed */
+            background: #5cb874; /* Add background color */
+        }
+        
+        .navbar .btn-search:hover,
+        .navbar .btn-search:focus:hover { /* Include focus styles for accessibility */
+            background-color: #4cae4c; /* Change the background color on hover/focus */
+            border-color: #4cae4c;
+            color: #fff; /* Set text color to white on hover/focus */
+        }
+        
+        .btn-success {
+            color: #fff !important; /* Set text color to white */
+        }
+          
+    </style>
+    
+</head>
+
+<body>  
+
+
+    <header id="header" class="d-flex align-items-center">
+        <div class="container d-flex align-items-center">
+    
+            <nav id="navbar" class="navbar ms-auto">
+                <ul class="nav-list">
+                    <li class="navbar-brand" href="{% url 'home-page' %}">
+                        <img src="{% static 'gallery/800px-Biliran_Provincial_Seal.png' %}" alt="Logo" width="50">
+                    </li>
+                    <li>
+                        <form method="get" action="{% url 'map-page' %}" class="d-flex" role="search">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ filtering.form.name }}
+                                </div>
+                                <div class="col-md-2">
+                                    {{ filtering.form.spot_type }}
+                                </div>
+                                <div class="col-md-2">
+                                    {{ filtering.form.municipal }}
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-success btn-search" type="submit">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </li>
+                    <li><a class="getstarted scrollto active" href="{% url 'home-page' %}">Home</a></li>
+                    <li><a class="getstarted scrollto" href="{% url 'map-page' %}">Tourist Spot Map</a></li>
+                    <li><a class="getstarted scrollto" href="#" onclick="togglePopup()">Login</a></li>
+                    <div class="login-container">
+                        <div class="popup-container">
+                            <div class="popup-overlay" id="popup-overlay" onclick="closePopup()">
+                                <div class="popup">
+                                    <div class="app-launcher login-form">
+                                        <form method="POST" action="{% url 'home-page' %}">
+                                            {% csrf_token %}
+                                            <input type="text" id="username" name="username" placeholder="Username" required>
+                                            <input type="password" id="password" name="password" placeholder="Password" required>
+                                            <button class="login-button" onclick="submitForm()">
+                                                <i class="fas fa-sign-in-alt"></i> <!-- Login icon -->
+                                                Login
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                </ul>
+            <i class="bi bi-list mobile-nav-toggle"></i>
+          </nav>
+        </div>
+      </header>
+
+    <div class="sidebar">
+        <h2 id="spot-name"></h2>
+        <p><strong>Spot Type:</strong> <span id="spot-type"></span></p>
+        <p id="spot-description"></p>
+        <img id="spot-image" src="" alt="Spot Image">
+    </div>
+    
+    <div class="map-container">
+        <div id="map">
+            <div class="leaflet-control-coordinate"></div>
+        </div>
+    </div>
+    
+
+<!-- leaflet js  -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js'  %}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+
+
+<script>
+    
+    // Function to update side information
+    function updateSideInfo(name, description, imageUrl, spotType) {
+        document.getElementById('spot-name').textContent = name;
+        document.getElementById('spot-description').textContent = description;
+        document.getElementById('spot-image').src = imageUrl;
+        document.getElementById('spot-type').textContent = spotType;
+    }
+
+    // Function to handle marker click events
+    function onMarkerClick(spot) {
+        var sidebar = document.querySelector('.sidebar');
+        if (sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+        } else {
+            updateSideInfo(spot.name, spot.description, spot.photoUrl, spot.spotType); // Include spotType
+            sidebar.classList.add('show');
+        }
+    }
+    
+    
+</script>
+
+<script>
+    var map = L.map('map', {
+        center: [11.635, 124.4849],
+        zoom: 10.5,
+        zoomControl: false // Disable default zoom controls
+    });
+    
+    // Define a mapping between spot types and colors
+    var spotTypeColors = {
+        'Natural': '#4CAF50',
+        'Historical': '#2196F3',
+        'Adventure': '#F44336',
+        'Recreational': '#9C27B0',
+        'Educational': '#FF9800',
+        'Culinary': '#795548',
+        'Scenic': '#E91E63',
+        'Festival': '#009688'
+    };
+    
+    {% for spot in spots %}
+        var spot{{ spot.id }} = {
+            name: '{{ spot.name }}',
+            description: '{{ spot.description|escapejs }}',
+            spotType: '{{ spot.spot_type }}',
+            photoUrl: '{% if spot.photo %}{{ spot.photo.url }}{% else %}/media/tourist_spot_photos/FB_IMG_1692936618339.jpg{% endif %}',
+            latitude: {{ spot.latitude }},
+            longitude: {{ spot.longitude }}
+        };
+    
+        var popupContent{{ spot.id }} = `
+            <div style="text-align: center;">
+                <h4>${spot{{ spot.id }}.name}</h4>
+            </div>
+        `;
+    
+        var marker{{ spot.id }} = L.marker([spot{{ spot.id }}.latitude, spot{{ spot.id }}.longitude], {
+            icon: L.divIcon({
+                className: 'custom-icon',
+                html: `<div class="custom-marker" style="background-color: ${spotTypeColors[spot{{ spot.id }}.spotType]};"></div>`,
+                iconSize: [30, 30]
+            })
+        })
+            .bindPopup(popupContent{{ spot.id }}, {
+                closeButton: false, // Disable the close button
+                minWidth: 100 // Set a minimum width for the popup
+            });
+    
+        marker{{ spot.id }}.on('mouseover', function() {
+            this.bindPopup(popupContent{{ spot.id }}).openPopup();
+        });
+    
+        marker{{ spot.id }}.on('mouseout', function() {
+            this.closePopup();
+        });
+    
+        marker{{ spot.id }}.on('click', function() {
+            onMarkerClick(spot{{ spot.id }});
+        });
+    
+        marker{{ spot.id }}.addTo(map);
+    {% endfor %}
+
+    // Add zoom control to bottom left
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+    /*==============================================
+                    TILE LAYER and WMS
+    ================================================*/
+    // OSM layer
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    // Dark map 
+    var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    });
+
+    
+    //google satellite
+    googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+    googleSat.addTo(map);
+
+    var baseMaps = {
+        "Google Satellite": googleSat,
+        "OSM": osm,
+        "Dark": dark,
+    };
+
+    L.control.layers(baseMaps, null, {position: 'bottomright'}).addTo(map);
+</script>
+
+<script>
+    function togglePopup() {
+        var popupOverlay = document.getElementById('popup-overlay');
+        popupOverlay.style.display = (popupOverlay.style.display === 'block') ? 'none' : 'block';
+    }
+    
+</script>
+<script>
+    function showLoginForm(role) {
+        var appLauncher = document.querySelector('.app-launcher');
+        var loginForm = document.getElementById('login-form');
+        appLauncher.style.display = 'none';
+        loginForm.style.display = 'block';
+    }
+
+    function goBack() {
+        var appLauncher = document.querySelector('.app-launcher');
+        var loginForm = document.getElementById('login-form');
+        appLauncher.style.display = 'block';
+        loginForm.style.display = 'none';
+    }
+    function redirectToLogin(userRole) {
+        var url;
+        if (userRole === 'provincial_admin') {
+            url = '/login/provincial_admin/';
+        } else if (userRole === 'municipal_admin') {
+            url = '/login/municipal_admin/';
+        } else if (userRole === 'barangay_admin') {
+            url = '/login/barangay_admin/';
+        } else if (userRole === 'barangay_staff') {
+            url = '/login/barangay_staff/';
+        } else if (userRole === 'tourist_staff') {
+            url = '/login/tourist_staff/';
+        }
+        window.location.href = url;
+    }
+</script>
+ 
+{% comment %} <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const spotTypeDropdown = document.getElementById('spot_type');
+
+        spotTypeDropdown.addEventListener('change', function() {
+            // Get the selected spot type
+            const selectedSpotType = this.value;
+
+            // Loop through all markers
+            {% for spot in spots %}
+                var marker{{ spot.id }} = L.marker([{{ spot.latitude }}, {{ spot.longitude }}]);
+
+                // Check if the spot type matches the selected spot type
+                if ('{{ spot.spot_type }}' === selectedSpotType || selectedSpotType === '') {
+                    marker{{ spot.id }}.addTo(map);
+                } else {
+                    map.removeLayer(marker{{ spot.id }});
+                }
+            {% endfor %}
+        });
+    });
+</script> {% endcomment %}
+</body>
+
+</html>

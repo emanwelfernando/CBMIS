@@ -1,0 +1,75 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static '/css/styles.css' %}" >
+<script defer src="{% static '/js/bootstrap.bundle.min.js' %}"></script>
+<script defer src="{% static '/js/scripts.js' %}"></script>
+
+<style>
+    .list-group-item.active {
+      background-color: 40BF80 !important;
+      box-sizing: border-box;
+      border-radius: 10px;
+      margin: 5px 5px;
+      width: 230px;
+      padding: 0.75rem 1rem !important;
+    }
+    .list-group-item:hover {
+      background-color: #f8f9fa; !important;
+      box-sizing: border-box;
+      border-radius: 10px;
+      margin: 5px 5px;
+      width: 230px;
+      padding: 0.75rem 1rem !important;
+    }
+    #sidebar-wrapper {
+      position: relative; /* Add this to make the button position relative to the sidebar */
+    }
+  
+    .collapse-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      font-size: 20px;
+      color: #555;
+      cursor: pointer;
+      background-color: transparent;
+      border: none;
+      z-index: 1; /* Add this line to ensure the button is on top */
+  }
+  
+</style>
+    
+<div class="d-flex" id="wrapper">
+  <!-- Sidebar -->
+  <div class="border-end bg-white position-relative" id="sidebar-wrapper">
+    <br>
+    <div class="sidebar-heading border-bottom bg-light">{{request.user}}</div>
+
+    <div class="list-group list-group-flush">
+
+      <a class="list-group-item list-group-item-action list-group-item-light p-3 {% if request.resolver_match.view_name == 'super-admin-dashboard' %}active{% endif %}" href="{% url 'super-admin-dashboard' %}">
+        <span class="sidebar-icon"><i class="fa fa-th-large fs-4 me-2"></i></span>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+      <a class="list-group-item list-group-item-action list-group-item-light p-3 {% if request.resolver_match.view_name == 'super-admin-household' %}active{% endif %}" href="{% url 'super-admin-household' %}">
+        <span class="sidebar-icon"><i class="fa-solid fa-house fs-4 me-2"></i></span>
+        <span class="sidebar-text">Household</span>
+      </a>
+      <a class="list-group-item list-group-item-action list-group-item-light p-3 {% if request.resolver_match.view_name == 'super-admin-resident' or request.resolver_match.view_name == 'super-admin-resident-page' %}active{% endif %}" href="{% url 'super-admin-resident' %}">
+        <span class="sidebar-icon"><i class="fas fa-users fs-4 me-2"></i></span> Resident
+      </a>
+      <a class="list-group-item list-group-item-action list-group-item-light p-3 {% if request.resolver_match.view_name == 'super-admin-manage-user' or request.resolver_match.view_name == 'super-admin-manage-user-page' %}active{% endif %}" href="{% url 'super-admin-manage-user' %}">
+        <span class="sidebar-icon"><i class="fas fa-user-cog fs-4 me-2"></i></span> Manage Users
+      </a>
+      <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'logout' %}">
+        <span class="sidebar-icon"><i class="fas fa-sign-out-alt fs-4 me-2"></i></span> Logout
+      </a>
+    </div>
+  </div>
+
+  <button id="sidebarToggle" class="collapse-button">
+    <i class="fas fa-bars"></i>
+</button>
+</div>
+

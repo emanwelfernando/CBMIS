@@ -1,0 +1,19 @@
+{% extends 'provincialAdmin/add_barangay.html' %}
+
+{% block modal-id %} id="editBarangay{{ i.id }}" {% endblock modal-id %}
+
+{% block modal-title %}Edit Barangay{% endblock modal-title %}
+
+{% block action %} action="{% url 'provincial-admin-edit-barangay' pk=i.id %}" {% endblock action %}
+
+{% block btn-action %}Save Changes{% endblock btn-action %}
+
+{% block Value-name %} value="{{ i.name }}" {% endblock Value-name %}
+
+{% block municipal-field %}
+  <select name="municipal" class="form-control">
+    {% for m in form.municipal.field.queryset %}
+      <option value="{{ m.id }}" {% if m.id == i.municipal.id %} selected {% endif %}>{{ m.name }}</option>
+    {% endfor %}
+  </select>
+{% endblock municipal-field %}

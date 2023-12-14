@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+
+{% comment %} background-color: #f2f2f2; {% endcomment %}
+<style>
+    .text-center-container {
+        padding-top: 15px; 
+    }
+
+    #wrapper {
+        overflow-x: hidden;
+        background-color: #f3f6fd;
+    }
+
+    .text-center-container {
+        padding-top: 15px;
+    }
+    
+    #resident-filter-form .form-control,
+    #resident-filter-form select {
+        width: 450px;
+    }
+    
+    #resident-filter-form .age-range-input {
+        width: 100px;
+    }
+    
+    .age-range-wrapper {
+        display: flex;
+        gap: 1px;
+    }  
+    
+    .age-range-input {
+        flex: 1;
+        max-width: 100px;
+    }
+</style> 
+
+<div id="resident-table-container">
+    <div class="d-flex" id="wrapper">
+        {% include 'barangayStaff/sidebar.html' %}
+        <link rel="stylesheet" href="{% static '/css/style.css' %}">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <br>
+                    <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                        <div class="card card-body">
+                            <div class="row">
+                                <div class="col-sm">
+                                    <div class="title">Generate Certificates</div>
+                                </div>
+                            </div>
+                            <br>
+                            <ul class="nav nav-underline justify-content-center">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="resident-tab" data-bs-toggle="tab" href="#document">Barangay Services</a>
+                                </li>
+                                {% comment %} <li class="nav-item">
+                                    <a class="nav-link" id="transaction-tab" data-bs-toggle="tab" href="#templates">Templates</a>
+                                </li> {% endcomment %}
+                            </ul>
+
+                            <div class="tab-content">
+                                <!-- Residents Tab -->
+                                <div class="tab-pane fade show active" id="document">
+                                    <div class="container">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                              <form method="get" action="{% url 'barangay-staff-document' %}" id="resident-filter-form">
+                                                <div class="mb-3">
+                                                  <label for="id_name" class="form-label">Name Contains</label>
+                                                  <div id="id_name_wrapper">{{ resident_filter.form.name }}</div>
+                                                </div>
+                                                <button type="submit" class="btn btn-success btn-md">Filter</button>
+                                                <button type="button" class="btn btn-success btn-md" onclick="clearFilter()">Clear</button>
+                                              </form>
+                                            </div>
+                                          
+                                          
+                                          </div>
+                                          
+                                          <div class="row table-container">
+                                            <table class="table" style="overflow-x: auto;">
+                                              <thead>
+                                                <tr>
+                                                  <th scope="col">#</th>
+                                                  <th class="sticky-header" scope="col" style="text-align: center;">Action</th>
+                                                  <th scope="col">Name</th>
+                                                  <th scope="col">Sex</th>
+                                                  <th scope="col">Phone Number</th>
+                                                  {% comment %} <th scope="col">Relationship</th> {% endcomment %}
+                                                  <th scope="col">Birth of Date</th>
+                                                  <th scope="col">Age</th>
+                                                  <th scope="col">Vaccination</th>
+                                                  <th scope="col">Status</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {% for resident_record in residents %}
+                                                  {% with resident_record.health_set.first as health_record %}
+                                                    {% with resident_record.education_set.first as education_record %}
+                                                      {% with resident_record.economic_set.first as economic_record %}
+                                                        <tr>
+                                                          <td>{{ start_index|add:forloop.counter0|add:1 }}</td>
+                                                          <td style="text-align: center">
+                                                            <a class="btn btn-success btn-sm btn-block" href="{% url 'barangay-staff-generate-clearance' resident_record.id %}" title="Generate Clearance">Generate Clearance</a>
+                                                            <a class="btn btn-success btn-sm btn-block" href="{% url 'barangay-staff-generate-indigency' resident_record.id %}" title="Generate Indigency">Generate Indigency</a>
+                                                          </td>
+                                                          <td>{{ resident_record.last_name }}, {{ resident_record.first_name }} {{ resident_record.middle_name|slice:':1' }}.{{ resident_record.suffix }}</td>
+                                                          <td>{{ resident_record.sex }}</td>
+                                                          <td>{{ resident_record.phone_number }}</td>
+                                                          {% comment %} <td>{{ resident_record.relationship }}</td> {% endcomment %}
+                                                          <td>{{ resident_record.birth_date|date:'F j, Y' }}</td>
+                                                          <td>{{ resident_record.age }}</td>
+                                                          <td>{{ resident_record.vaccination }}</td>
+                                                          <td>{{ resident_record.status }}</td>
+                                                        </tr>
+                                                      {% endwith %}
+                                                    {% endwith %}
+                                                  {% endwith %}
+                                                {% endfor %}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                          
+                                          <div class="text-center-container">
+                                            <div class="text-center">
+                                              {% if residents.has_previous %}
+                                                <a class="btn btn-success btn-sm btn-block pagination-link" title="Previous Page" href="{% url 'barangay-staff-document' %}?page={{ residents.previous_page_number }}">Previous Page</a>
+                                              {% endif %}
+                                          
+                                              <button type="button" class="btn btn-outline-secondary btn-sm pagination-link">{{ residents.number }}</button>
+                                          
+                                              {% if residents.has_next %}
+                                                <a class="btn btn-success btn-sm btn-block pagination-link" title="Next Page" href="{% url 'barangay-staff-document' %}?page={{ residents.next_page_number }}">Next Page</a>
+                                              {% endif %}
+                                            </div>
+                                          </div>
+                                          
+                                                                               
+                                    </div>
+                                </div>
+
+                             
+                                {% comment %} <!-- Transactions Tab (add your transaction content) -->
+                                <div class="tab-pane fade" id="templates">
+                                  <div class="container">
+                                    <div class="row mt-3">
+                                      <div class="col-md-12">
+                                        <div class="col-md-6">
+                                          <form method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                              <label for="doc_file" class="form-label">Upload Clearance Templates</label>
+                                              <input type="file" name="doc_file" class="form-control" accept=".docx" />
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Upload</button>
+                                          </form>
+                                        </div>
+                                        <h5>Barangay Clearance Templates:</h5>
+                                        <table class="table">
+                                          <thead>
+                                            <tr>
+                                              <th scope="col">#</th>
+                                              <th scope="col">Template Name</th>
+                                              <th scope="col" class="sticky-header" style="text-align: center;">Actions</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {% for clearance_file in clearance_files %}
+                                              <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ clearance_file }}</td>
+                                                <td style="text-align: center">
+                                                  <a href="{% url 'barangay-staff-edit-clearance' clearance_file %}" class="btn btn-success btn-sm btn-block" title="Edit">Edit</a>
+                                                  <a href="{% url 'barangay-staff-delete-clearance' clearance_file %}" class="btn btn-success btn-sm btn-block" title="Delete">Delete</a>
+                                                </td>
+                                              </tr>
+                                            {% endfor %}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                      <hr>
+                                      <div class="col-md-12">
+                                        <div class="col-md-6">
+                                          <form method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                              <label for="indigency_file" class="form-label">Upload Indigency Templates</label>
+                                              <input type="file" name="indigency_file" class="form-control" accept=".docx" />
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Upload</button>
+                                          </form>
+                                        </div>
+                                        <h5>Certificate of Indigency Templates:</h5>
+                                        <table class="table">
+                                          <thead>
+                                            <tr>
+                                              <th scope="col">#</th>
+                                              <th scope="col">Template Name</th>
+                                              <th scope="col" class="sticky-header" style="text-align: center;">Actions</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {% for indigency_file in indigency_files %}
+                                              <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ indigency_file }}</td>
+                                                <td style="text-align: center">
+                                                  <a href="{% url 'barangay-staff-edit-indigency' indigency_file %}" class="btn btn-success btn-sm btn-block" title="Edit">Edit</a>
+                                                  <a href="{% url 'barangay-staff-delete-indigency' indigency_file %}" class="btn btn-success btn-sm btn-block" title="Delete">Delete</a>
+                                                </td>
+                                              </tr>
+                                            {% endfor %}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>     
+                                  </div>
+                              </div> {% endcomment %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'barangayStaff/view_resident.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var myTabs = new bootstrap.Tab(document.getElementById('resident-tab'));
+        myTabs.show();  // Show the Residents tab by default
+
+        // Function to switch tabs
+        function switchTab(tabId) {
+            var tab = new bootstrap.Tab(document.getElementById(tabId));
+            tab.show();
+        }
+
+        // Example: Switch to the Transactions tab
+        document.getElementById('transaction-tab').addEventListener('click', function () {
+            switchTab('transactions');
+        });
+
+        // You can add similar event listeners for other tabs
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Attach an event listener to the pagination links
+        document.getElementById('resident-table-container').addEventListener('click', function (event) {
+            // Check if the clicked element is a pagination link
+            if (event.target.tagName.toLowerCase() === 'a' && event.target.classList.contains('pagination-link')) {
+                event.preventDefault(); // Prevent the default behavior of the link
+
+                // Fetch the content of the clicked link using AJAX
+                var url = event.target.getAttribute('href');
+                fetch(url)
+                    .then(response => response.text())
+                    .then(data => {
+                        // Replace the content of the container with the fetched data
+                        document.getElementById('resident-table-container').innerHTML = data;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    });
+</script>
+
+{% if messages %}
+    <!-- Modal -->
+    <div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messagesModalLabel">Messages</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open the modal automatically when messages are present -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var messagesModal = new bootstrap.Modal(document.getElementById('messagesModal'));
+            messagesModal.show();
+        });
+    </script>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editButtons = document.querySelectorAll('.edit-btn');
+
+        editButtons.forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const documentName = e.target.closest('tr').querySelector('td:nth-child(2)').textContent;
+                const documentUrl = "{% url 'barangay-staff-edit-clearance' 0 %}".replace('0', encodeURIComponent(documentName));
+
+                // Create a temporary link element
+                const link = document.createElement('a');
+                link.href = documentUrl;
+                link.target = '_blank';
+
+                // Trigger a click on the link to open the document in Word
+                link.click();
+            });
+        });
+    });
+</script>
+
+
+{% endblock %}

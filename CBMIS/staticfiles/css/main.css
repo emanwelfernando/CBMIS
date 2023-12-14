@@ -1,0 +1,37 @@
+
+btn-success{
+  background-color: aqua;
+}
+
+body {
+     font-size: 13px;
+     font-family: 'Armata', sans-serif;
+     background-color: #d9b8b8;
+}
+thead{
+     background-color: #abefc9;
+}
+.navbar_li{
+     text-align: center;
+     margin-left: 40px; 
+     font-size: 14px;
+}
+.dropdown-menu{
+     width: 20px important;
+     margin-left: -69px;
+}
+.title{
+     text-align: center;
+     font-weight: bolder;
+     font-size: 24px;
+}
+
+#mainfront{
+     font-size: 14px;
+     text-align: center;
+}
+ #page-content-wrapper{
+     width: 80%;
+ }
+
+ 

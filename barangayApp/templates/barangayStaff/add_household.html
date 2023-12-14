@@ -1,0 +1,282 @@
+{% load geojson_tags %}
+{% load leaflet_tags %}
+{% leaflet_js %}
+{% leaflet_css %}
+
+
+<style>
+  .custom-outline:focus {
+    outline-color: black !important;
+  }
+  
+  .custom-outline:focus {
+    outline: none !important;
+  }
+
+  .section-heading {
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  .section-divider {
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Adjust input field widths */
+  .form-control {
+    width: 100%;
+  }
+
+  .column-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .column {
+    flex-basis: calc(50% - 15px); /* Adjust spacing as needed */
+  }
+  .search-results {
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .selected-result {
+    background-color: #f4f4f4; /* Shaded background color */
+  }
+  
+  .selected-beneficiary {
+    display: inline-block;
+    margin: 4px;
+    padding: 8px 12px;
+    background-color: #e2e3e5;
+    border-radius: 20px;
+    position: relative;
+  }
+  
+  .selected-beneficiary .btn-delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+  }
+</style>
+
+<div class="modal fade add-household-modal" id="addHousehold" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div id="current-time" class="text-center mb-2 fs-5"></div>
+        <h5 class="modal-title" id="addHouseholdModalLabel">{% block modal-title %}Add Household Information{% endblock modal-title %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="{% url 'barangay-staff-add-household' %}" method="POST" autocomplete="on">
+          {% csrf_token %}
+          <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="selected-head-ids-adds" class="form-label">Household Head:</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control" id="selected-head-ids-adds" name="selected_head_names_adds">
+                    <ul id="search-results-head-adds" class="list-group search-results"></ul>
+                </div>
+                <label for="selected-head-ids-adds" class="form-label">Selected Household Head:</label> 
+                <div id="selected-head-adds" class="mb-3"></div>
+            
+                <!-- Hidden input for selected head IDs -->
+                <input type="hidden" id="selected-head-ids-hidden-adds" name="selected_head_ids_adds">
+            </div>
+            
+            <div class="mb-3">
+                <label for="selected-members-ids-adds" class="form-label">Household Members:</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control" id="selected-members-ids-adds" name="selected_member_names_adds">
+                    <ul id="search-results-adds" class="list-group search-results"></ul>
+                </div>
+                <label for="selected-members-ids-adds" class="form-label">Selected Household Members:</label>
+                <div id="selected-members-adds" class="mb-3"></div>
+            
+                <!-- Hidden input for selected member IDs -->
+                <input type="hidden" id="selected-members-ids-hidden-adds" name="selected_member_ids_adds">
+            </div>
+            
+                <!-- Number of Senior Citizens -->
+                    <label for="num-senior-citizens" class="form-label">Number of senior citizens in the household:</label>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" name="num_senior_citizens" {% block num_senior_citizens %}{% endblock num_senior_citizens %}>
+                </div>
+                <!-- Number of Pregnant/Lactating Mothers -->
+                    <label for="num-prenant-lactating-women" class="form-label">Number of pregnant / lactating mothers in the household:</label>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" name="num_pregnant_lactating_mothers"  {% block num_pregnant_lactating_mothers %}{% endblock num_pregnant_lactating_mothers %}>
+                </div>
+                <!-- Number of members with Disability -->
+                    <label for="num-with-disability" class="form-label">Number of members with disability:</label>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" name="num_members_with_disability" ={% block num_members_with_disability %}{% endblock num_members_with_disability %}>
+                </div>
+                <!-- Number of Registered Voters -->
+                    <label for="num-registered-voters" class="form-label">Number of Registered Voters:</label>
+                <div class="input-group mb-3">
+                    <input type="number" class="form-control" name="num_registered_voters" {% block num_registered_voters %}{% endblock num_registered_voters %}>
+                </div> 
+            </div>
+            <!-- Right Column -->
+            <div class="col-md-4">
+              <label for="monthly-income-range" class="form-label">Monthly Income:</label>
+               <div class="input-group mb-3">
+                    <select class="form-select" name="monthly_income_range">
+                        {% block income_option %}
+                        <option value="" disabled selected hidden>---------------</option>
+                        {% endblock income_option %}
+                        <option value="Less than ₱10,000">Less than ₱10,000</option>
+                        <option value="₱10,000 - ₱20,000">₱10,000 - ₱20,000</option>
+                        <option value="₱20,000 - ₱30,000">₱20,000 - ₱30,000</option>
+                        <option value="₱30,000 - ₱40,000">₱30,000 - ₱40,000</option>
+                        <option value="More than ₱40,000">More than ₱40,000</option>
+                    </select>
+                </div>  
+                <label for="education-level-of-head" class="form-label">Education Level of Head:</label>
+                <div class="input-group mb-3">
+                     <select class="form-select" name="education_level_of_head">
+                         {% block head_education_option %}
+                         <option value="">---------------</option>
+                         {% endblock head_education_option %}
+                         <option value="No Formal Education">No Formal Education</option>
+                         <option value="Elementary School">Elementary School</option>
+                         <option value="High School Graduate">High School Graduate</option>
+                         <option value="College Graduate">College Graduate</option>
+                         <option value="Postgraduate Degree">Postgraduate Degree</option>
+                     </select>
+                 </div>  
+                 <label for="access-to-basic-amenities" class="form-label">Access To Basic Amenities:</label>
+                 <div class="input-group mb-3">
+                      <select class="form-select" name="access_to_basic_amenities">
+                          {% block amenities_option %}
+                          <option value="">---------------</option>
+                          {% endblock amenities_option %}
+                          <option value="Electricity">Electricity</option>
+                          <option value="Clean Water">Clean Water</option>
+                          <option value="Sanitation">Sanitation</option>
+                          <option value="Housing">Housing</option>
+                          <option value="Health Services">Health Services</option>
+                          <option value="Education">Education</option>
+                          <option value="Communication">Communication</option>
+                          <option value="Transportation">Transportation</option>
+                          <option value="Others">Others</option>
+                      </select>
+                  </div>  
+                  <label for="ownership-of-assets" class="form-label">Ownership of Assets:</label>
+                  <div class="input-group mb-3">
+                       <select class="form-select" name="ownership_of_assets">
+                           {% block assets_option %}
+                           <option value="">---------------</option>
+                           {% endblock assets_option %}
+                           <option value="Land">Land</option>
+                           <option value="House">House</option>
+                           <option value="Vehicle">Vehicle</option>
+                           <option value="Livestock">Livestock</option>
+                           <option value="Appliances">Appliances</option>
+                           <option value="Savings">Savings</option>
+                           <option value="Business">Business</option>
+                           <option value="Other Assets">Other Assets</option>
+                       </select>
+                   </div>  
+                   <label for="household-condition" class="form-label">Household Condition:</label>
+                   <div class="input-group mb-3">
+                        <select class="form-select" name="housing_condition">
+                            {% block condition_option %}
+                            <option value="">---------------</option>
+                            {% endblock condition_option %}
+                            <option value="Owned">Owned</option>
+                            <option value="Rented">Rented</option>
+                            <option value="Government Housing">Government Housing</option>
+                            <option value="Informal Settlement">Informal Settlement</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>  
+                    <label for="household-type" class="form-label">Household Type:</label>
+                    <div class="input-group mb-3">
+                         <select class="form-select" name="household_type">
+                             {% block type_option %}
+                             <option value="">---------------</option>
+                             {% endblock type_option %}
+                             <option value="Nuclear Family">Nuclear Family</option>
+                             <option value="Extended Family">Extended Family</option>
+                             <option value="Single Parent Family">Single Parent Family</option>
+                             <option value="Child-Headed Family">Child-Headed Family</option>
+                             <option value="Elderly-Headed Family">Elderly-Headed Family</option>
+                             <option value="Other">Other</option>
+                         </select>
+                     </div>  
+                  </div>
+            
+                  {% comment %} <div class="input-group mb-3">
+                    <select class="form-select" name="relationship">
+                        {% block relationship_option %}
+                        <option value="" disabled selected hidden>Relationship</option>
+                        {% endblock relationship_option %}
+                        <option value="Spouse">Spouse</option>
+                        <option value="Partner">Partner</option>
+                        <option value="Son">Son</option>
+                        <option value="Daughter">Daughter</option>
+                        <option value="Brother">Brother</option>
+                        <option value="Sister">Sister</option>
+                        <option value="Father">Father</option>
+                        <option value="Mother">Mother</option>
+                        <option value="Mother-in-law">Mother-in-law</option>
+                        <option value="Father-in-law">Father-in-law</option>
+                        <option value="Stepson">Stepson</option>
+                        <option value="Stepdaughter">Stepdaughter</option>
+                        <option value="Son-in-law">Son-in-law</option>
+                        <option value="Daughter-in-law">Daughter-in-law</option>
+                        <option value="Brother-in-law">Brother-in-law</option>
+                        <option value="Sister-in-law">Sister-in-law</option>
+                        <option value="Uncle">Uncle</option>
+                        <option value="Aunt">Aunt</option>
+                        <option value="Nephew">Nephew</option>
+                        <option value="Niece">Niece</option>
+                        <option value="Boarder">Boarder</option>
+                        <option value="Domestic helper">Domestic helper</option>
+                        <option value="Nonrelative">Nonrelative</option>
+                        <option value="Other relative">Other relative</option>
+                    </select>
+                </div>  {% endcomment %}
+                        <div class="col-md-4">
+                          <div class="mb-3">
+                            <label for="location" class="form-label">Location:</label>
+                            <div id="map2" style="width: 100%; height: 300px; margin-bottom: 20px;"></div>
+                            <input type="hidden" id="latitude" name="latitude">
+                            <input type="hidden" id="longitude" name="longitude">
+                            <!-- Display Latitude and Longitude values -->
+                            <div class="row">
+                                <div class="col">
+                                    <label for="latitude" class="form-label">Latitude:</label>
+                                    <input type="text" class="form-control" id="latitudeDisplay" readonly>
+                                </div>
+                                <div class="col">
+                                    <label for="longitude" class="form-label">Longitude:</label>
+                                    <input type="text" class="form-control" id="longitudeDisplay" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                  </div>
+                <!-- Submit Button -->
+              <div class="modal-footer">  
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">{% block btn-action %}Add Household{% endblock btn-action %}</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+

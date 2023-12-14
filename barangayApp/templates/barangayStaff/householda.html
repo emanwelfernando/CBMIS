@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+
+<style>
+    #wrapper{
+        overflow-x: hidden;
+        background-color: #f2f2f2;
+    }
+    .text-center-container {
+        padding-top: 15px; 
+      }
+    .map-container {
+        flex-grow: 1;
+        height: 100%;
+    }
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+    
+</style> 
+
+<div class="d-flex" id="wrapper">
+    
+    {% include 'barangayStaff/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">List of households</div>
+                            </div>
+                        </div>
+                        <br>
+                        <form method="get" action="{% url 'barangay-staff-household' %}" class="row g-3" id="household-filter-form">
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="id_household_head__full_name" class="form-label">Household Head Name Contains:</label>
+                                            {{ HouseholdFilter.form.household_head__full_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="id_beneficiaries__full_name" class="form-label">Beneficiaries Name Contains:</label>
+                                            {{ HouseholdFilter.form.beneficiaries__full_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="id_num_beneficiaries_with_disability_0" class="form-label">Number of Beneficiaries with Disability:</label>
+                                            {{ HouseholdFilter.form.num_beneficiaries_with_disability.0 }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="id_num_senior_citizens_0" class="form-label">Number of Senior Citizens:</label>
+                                            {{ HouseholdFilter.form.num_senior_citizens.0 }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="id_num_pregnant_lactating_mothers_0" class="form-label">Number of Pregnant/Lactating Mothers:</label>
+                                            {{ HouseholdFilter.form.num_pregnant_lactating_mothers.0 }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="id_num_registered_voters" class="form-label">Number of Registered Voters:</label>
+                                            {{ HouseholdFilter.form.num_registered_voters }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success btn-md btn-block">Filter</button>
+                                <button type="button" class="btn btn-success btn-md btn-block" onclick="clearFilter()">Clear</button>
+                                <a href="{% url 'export-residents' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-md btn-block">Export PDF</a>
+                            </div>
+                        </form>
+                        <hr>
+                        <div> 
+                        <a class="btn btn-success btn-md btn-block" title="Add Household" data-bs-toggle="modal" data-bs-target="#addHousehold">Add Household</a>
+                        
+                            {% include 'barangayStaff/add_household.html' %}   
+                         </div>
+                            <br>
+                            
+                    <div id="map1" style="height: 300px;"></div>
+                    <br>
+                            <div style="overflow-x:auto table-Layout:fixed">
+                                <div class="row table-container">
+                                      <table class="table">
+                                        <thead>
+                                        <tr>                                             
+                                            <th class="sticky-header" scope="col" style="text-align: center;">Action</th>                               
+                                            <th scope="col">Head</th>
+                                            <th scope="col">Beneficiaries</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for household in households %}
+                                            <tr> 
+                                                <td style="text-align: center">
+                                                    {% include 'barangayStaff/view_household.html' %}
+                                                    <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewHousehold{{ household.id }}">
+                                                        <i class="fa-sharp fa-solid fa-eye"></i>
+                                                    </a>          
+                                                    {% include 'barangayStaff/edit_household.html' %}                                   
+                                                    <a class="btn btn-success btn-sm btn-block" title="Edit" data-bs-toggle="modal" data-bs-target="#editHousehold{{ household.id }}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>     
+                                                </td>
+                                                <td>{{household.household_head}}</td>
+                                                <td>
+                                                    {% for beneficiary in household.beneficiaries.all %}
+                                                        {{ beneficiary.first_name }} {{ beneficiary.last_name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                                {% comment %} <td>{{household.num_senior_citizens }}</td>
+                                                <td>{{household.num_pregnant_lactating_mothers}}</td>
+                                                <td>{{household.num_beneficiaries_with_disability}}</td> {% endcomment %}
+                                            </tr>  
+                                        {% endfor %}
+                                    </tbody>
+                                    </table>    
+                                </div>
+                                                                
+                                <div class="text-center-container">
+                                    <div class="text-center">
+                                        {% if households.has_previous %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Previous Page" href="{% url 'barangay-staff-resident' %}?page={{ households.previous_page_number }}">Previous Page</a>
+                                        {% endif %}
+                                
+                                        <button type="button" class="btn btn-outline-secondary btn-sm">{{ households.number }}</button>
+                                
+                                        {% if households.has_next %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Next Page" href="{% url 'barangay-staff-resident' %}?page={{ households.next_page_number }}">Next Page</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>          
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>                       
+</div>    
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    var loggedInUserBarangayId = {{ user.barangay.id }};
+    
+    var map1 = L.map('map1').setView([11.635, 124.4849], 10);
+
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map1);
+
+    if (loggedInUserBarangayId != 0) {
+        // Function to add household markers to the map
+        function addHouseholdMarkersToMap(householdData) {
+            for (var i = 0; i < householdData.length; i++) {
+                var household = householdData[i];
+                L.marker([household.latitude, household.longitude]).addTo(map1)
+                    .bindPopup('Household Head: ' + household.head_name);
+            }
+        }
+    
+        // Retrieve household data and add markers when needed (e.g., after filtering)
+        function retrieveAndAddHouseholdMarkers() {
+            var householdData = JSON.parse('{{ household_data_json|escapejs }}');
+            addHouseholdMarkersToMap(householdData);
+        }
+    
+        // Call the function to retrieve and add household markers
+        retrieveAndAddHouseholdMarkers();
+
+        // Add GeoJSON data for the logged-in user's barangay
+        var barangay_geojson_{{ user.barangay.id }} = {{ user.barangay.geom.geojson|safe }};
+        map1.fitBounds(L.geoJSON(barangay_geojson_{{ user.barangay.id }}).getBounds());
+        L.geoJSON(barangay_geojson_{{ user.barangay.id }}).addTo(map1);
+    }
+</script>
+
+<script>
+    // This script will still work independently
+    $('#addHousehold').on('shown.bs.modal', function() {
+        map.invalidateSize();
+    });
+</script>
+
+{% endblock %}

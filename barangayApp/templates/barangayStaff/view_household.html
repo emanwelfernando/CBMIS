@@ -1,0 +1,86 @@
+<!-- Modal -->
+<div class="modal fade" {% block modal-id %} id="viewHousehold{{ household.id }}" {% endblock modal-id %} tabindex="-1" aria-labelledby="ViewHouseholdLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="viewHouseholdLabel">{% block modal-title %}Household Information{% endblock modal-title %}</h1>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <br>
+                            <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                                <hr>                     
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope='row'>Heads</th>
+                                            <td>{{household.household_head}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Members</th>
+                                            <td>
+                                                {% for member in household.members.all %}
+                                                <div>
+                                                    {{ member.first_name }} {{ member.last_name }},
+                                                </div>
+                                            {% endfor %}
+                                            
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Number Senior Citizens</th>
+                                            <td>{{ household.num_senior_citizens }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Number Pregnant/Lactating Mothers</th>
+                                            <td>{{ household.num_pregnant_lactating_mothers }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Number of Members with Disability</th>
+                                            <td>{{ household.num_beneficiaries_with_disability }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Number Registered Voters</th>
+                                            <td>{{ household.num_registered_voters }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Housing Condition</th>
+                                            <td>{{ household.housing_condition }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Household Type</th>
+                                            <td>{{ household.household_type }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Monthly Income Range</th>
+                                            <td>{{ household.monthly_income_range }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Access to Basic Amenities</th>
+                                            <td>{{ household.access_to_basic_amenities }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Ownership of Assets</th>
+                                            <td>{{ household.ownership_of_assets }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope='row'>Vaccination</th>
+                                            <td>{{ household.education_level_of_head }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+                    <br>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+  

@@ -1,0 +1,36 @@
+
+#wrapper{
+     overflow-x: hidden;
+     background-color: #f3f6fd;
+ }
+ .text-center-container {
+     padding-top: 15px; 
+ }
+
+ #wrapper {
+     overflow-x: hidden;
+     background-color: #f3f6fd;
+ }
+
+ .text-center-container {
+     padding-top: 15px;
+ }
+ 
+ #resident-filter-form .form-control,
+ #resident-filter-form select {
+     width: 450px;
+ }
+ 
+ #resident-filter-form .age-range-input {
+     width: 100px;
+ }
+ 
+ .age-range-wrapper {
+     display: flex;
+     gap: 1px;
+ }  
+ 
+ .age-range-input {
+     flex: 1;
+     max-width: 100px;
+ }

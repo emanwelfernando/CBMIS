@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="modal fade" id="addUser" tabindex="-1" aria-labelledby="registerUserLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="registerUserLabel">Register New User</h1>
+        </div>
+        <form method="post" {% block action %}action="{% url 'register' %}"{% endblock action %}>
+          {% csrf_token %}
+          <div class="modal-body">
+            {% for field in form %}
+              <div class="input-group mb-3">
+                <div class="custom-input-wrapper">
+                  <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                  {{ field }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success">Register</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

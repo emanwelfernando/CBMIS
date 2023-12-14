@@ -1,0 +1,720 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>CBMIS</title>
+
+  <!-- Favicons -->
+  <link href="{% static 'gallery/800px-Biliran_Provincial_Seal.png' %}" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/animate.css/animate.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/home/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<style>
+  
+  .popup-container {
+    position: absolute;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.popup {
+    padding: 20px;
+    text-align: center;
+}
+
+.login-button {
+    display: block;
+    width: fit-content;
+    margin: 8px 0;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #ddd;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #ccc;
+}
+
+.navbar-login-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.back-button {
+    display: block;
+    width: fit-content;
+    margin: 8px 0;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #ddd;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #ccc;
+}
+
+.popup-overlay {
+    display: none;
+    position: relative;
+    top: auto; /* Set top to 'auto' to allow the bottom property to take effect */
+    bottom: -35px;
+    left: 50%; /* Adjust this value to center the popup horizontally */
+    transform: translateX(-115%);
+    width: 300px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.popup {
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup .app-launcher button {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    text-align: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    transition: background-color 0.3s;
+}
+
+.popup .app-launcher button:hover {
+  background-color: #f0f0f0;
+}
+
+.popup .login-form input {
+  display: block;
+  width: 100%; /* Set the width to 100% */
+  margin: 8px 0;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+.login-form input {
+    display: block;
+    width: 100%; /* Set the width to 100% */
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.leaflet-control-coordinate {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.leaflet-bottom.leaflet-right {
+    right: 10px;
+}
+
+/* Navbar Styles */
+.navbar {
+    z-index: 1000; /* Ensure the navbar is above other elements */
+}
+
+.navbar-nav {
+    margin-left: auto; /* Push the navbar items to the right */
+}
+
+.nav-link.active {
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link {
+    text-decoration: none;
+    padding: .5rem 1rem;
+}
+
+.navbar-toggler-icon {
+    color: white;
+}
+
+.custom-marker {
+    width: 30px;
+    height: 30px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    cursor: pointer;
+}
+
+.btn-outline-success {
+    color: white; /* Set the text color to white */
+    border-color: white; /* Set the border color to white */
+}
+
+#header {
+    transition: all 0.5s;
+    z-index: 997;
+    height: 70px;
+  }
+  
+  #header.header-scrolled {
+    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  #header .logo {
+    font-size: 30px;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  
+  #header .logo a {
+    color: #5cb874;
+  }
+  
+  #header .logo img {
+    max-height: 40px;
+  }
+  
+  .scrolled-offset {
+    margin-top: 70px;
+  }
+  
+.navbar {
+    padding: 0;
+  
+  }
+  
+  .navbar ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    list-style: none;
+    align-items: center;
+  }
+  
+  .navbar li {
+    position: relative;
+  }
+  
+  .navbar a,
+  .navbar a:focus {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 10px 30px;
+    font-size: 15px;
+    color: #222222;
+    white-space: nowrap;
+    transition: 0.3s;
+  }
+  
+  .navbar a i,
+  .navbar a:focus i {
+    font-size: 12px;
+    line-height: 0;
+    margin-left: 5px;
+  }
+  
+  .navbar a:hover,
+  .navbar .active,
+  .navbar .active:focus,
+  .navbar li:hover>a {
+    color: #5cb874;
+  }
+  
+  .navbar .getstarted,
+  .navbar .getstarted:focus {
+    color: #5cb874;
+    padding: 8px 25px;
+    margin-left: 30px;
+    border-radius: 4px;
+    border: 2px solid #5cb874;
+    transition: 0.3s;
+    font-size: 14px;
+  }
+  
+  .navbar .getstarted:hover,
+  .navbar .getstarted:focus:hover {
+    background: #5cb874;
+    color: #fff;
+  }
+  
+  .navbar .dropdown ul {
+    display: block;
+    position: absolute;
+    left: 14px;
+    top: calc(100% + 30px);
+    margin: 0;
+    padding: 10px 0;
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    background: #fff;
+    box-shadow: 0px 0px 30px rgba(127, 137, 161, 0.25);
+    transition: 0.3s;
+  }
+  
+  .navbar .dropdown ul li {
+    min-width: 200px;
+  }
+  
+  .navbar .dropdown ul a {
+    padding: 10px 20px;
+    text-transform: none;
+  }
+  
+  .navbar .dropdown ul a i {
+    font-size: 12px;
+  }
+  
+  .navbar .dropdown ul a:hover,
+  .navbar .dropdown ul .active:hover,
+  .navbar .dropdown ul li:hover>a {
+    color: #5cb874;
+  }
+  
+  .navbar .dropdown:hover>ul {
+    opacity: 1;
+    top: 100%;
+    visibility: visible;
+  }
+  
+  .navbar .dropdown .dropdown ul {
+    top: 0;
+    left: calc(100% - 30px);
+    visibility: hidden;
+  }
+  
+  .navbar .dropdown .dropdown:hover>ul {
+    opacity: 1;
+    top: 0;
+    left: 100%;
+    visibility: visible;
+  }
+  
+.card {
+  background-color: #40bf80 !important;
+}
+
+.box_title {
+  text-align: center;
+  font-weight: bold;
+  font-size: xx-large;
+  padding-top: 0px;
+  padding-bottom: 5px;
+  float: left;
+  padding-left: 10px;
+  text-align: center; /* Center the text horizontally */
+  margin: auto;
+  width: 200px;
+  border-color: transparent !important;
+  outline: transparent !important;
+}
+
+.fs-6 {
+  text-align: center;
+}
+
+</style>
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="d-flex align-items-center">
+    <div class="container d-flex align-items-center">    
+      <a class="navbar-brand" href="#">
+      <img src="{% static 'gallery/800px-Biliran_Provincial_Seal.png' %}" alt="Logo" width="50">
+      </a>
+
+      <nav id="navbar" class="navbar ms-auto">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+          <li><a class="nav-link scrollto" href="#services">Services</a></li>
+          <li><a class="nav-link scrollto" href="#about">About</a></li>
+          <li><a class="getstarted scrollto" href="{% url 'map-page' %}">Tourist Spot Map</a></li>
+          <li><button class="getstarted scrollto btn btn-link" onclick="togglePopup()" style="text-decoration: none;">Login</button></li>
+          <div class="login-container">
+              <div class="popup-container">
+                  <div class="popup-overlay" id="popup-overlay">
+                        <div class="popup">
+                          <div class="app-launcher login-form">
+                            <form method="POST" action="{% url 'home-page' %}">
+                                {% csrf_token %}
+                            <input type="text" id="username" name="username" placeholder="Username" required>
+                            <input type="password" id="password" name="password" placeholder="Password" required>
+                            <button class="login-button" onclick="submitForm()">
+                                <i class="fas fa-sign-in-alt"></i> <!-- Login icon -->
+                                Login
+                            </button>
+                        </form>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav>
+    </div>
+  </header>
+  <!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero">
+    <div id="heroCarousel" data-bs-interval="8000" class="carousel slide carousel-fade" data-bs-ride="carousel">
+
+      <ol class="carousel-indicators" id="hero-carousel-indicators"></ol>
+
+      <div class="carousel-inner" role="listbox">
+
+        <!-- Slide 1 -->
+        <div class="carousel-item active" style="background-image: url('{% static 'gallery/Biliran-Bridge2.jpg' %}');">
+          <div class="carousel-container">
+            <div class="container">
+              <h2 class="animate__animated animate__fadeInDown">Welcome to <span>CBMIS</span></h2>
+              <h4 class="animate__animated animate__fadeInDown">Streamlining household profiling in Biliran. Centralized platform 
+                  for accurate demographic data such as disabilities, early pregnancies, seniors, and unemployed.</h4>
+             <a href="https://www.biliranisland.com/about-biliran-province/" class="btn-get-started animate__animated animate__fadeInUp scrollto">Read More</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel-item" style="background-image: url('{% static 'gallery/P1170126.JPG' %}');">
+          <div class="carousel-container">
+            <div class="container">
+              <h2 class="animate__animated animate__fadeInDown">Holistic Barangay Profiling</h2>
+              <h4 class="animate__animated animate__fadeInDown">Gain a 360-degree view of your community with our 
+                  advanced profiling system. From households to residents, our comprehensive approach ensures 
+                  accurate and up-to-date information for effective decision-making.</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel-item" style="background-image: url('{% static 'gallery/falls.jpg' %}');">
+          <div class="carousel-container">
+            <div class="container">
+              <h2 class="animate__animated animate__fadeInDown">Effortless Administration</h2>
+              <h4 class="animate__animated animate__fadeInDown">Streamline administrative tasks with the click of a button! 
+                  Generate barangay clearances and indigency certificates seamlessly, saving time and resources while 
+                  maintaining the highest standards of accuracy.</h4>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <a class="carousel-control-prev" href="#heroCarousel" role="button" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+      </a>
+
+      <a class="carousel-control-next" href="#heroCarousel" role="button" data-bs-slide="next">
+        <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+      </a>
+
+    </div>
+  </section><!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= Featured Services Section ======= -->
+    <section id="services" class="services">
+      <div class="container-fluid px-3">
+
+        <div class="section-title">
+          <h2>More Information</h2>
+                </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="p-2 bg-white shadow d-flex justify-content-around align-items-center rounded">
+              <div>
+                <h3 class="fs-2"><input id="totalResidents" class="box_title" value="{{ total_residents }}" readonly/></h3>
+                <p class="fs-6 fw-bold">Residents</p>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="p-2 bg-white shadow d-flex justify-content-around align-items-center rounded">
+
+              <div>
+                <h3 class="fs-2"><input id="totalResidents" class="box_title" value="{{ total_spots }}" readonly/></h3>
+                <p class="fs-6 fw-bold">Tourist Spots</p>
+                </div>
+  
+              </div>
+            </div>
+
+          <div class="col-md-4">
+            <div class="p-2 bg-white shadow d-flex justify-content-around align-items-center rounded">
+
+              <div>
+                <h3 class="fs-2"><input id="totalResidents" class="box_title" value="{{ total_households }}" readonly/></h3>
+                <p class="fs-6 fw-bold">Households</p>
+                </div>
+  
+              </div>
+            </div>
+
+          
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= About Us Section ======= -->
+    <section id="about" class="about">
+      <div class="container">
+
+        <div class="section-title">
+          <h2>About</h2>
+          <p>CBMIS or Comprehensive Barangay Information Management System is a web-based application aimed at efficiently managing household profiling in Biliran Province. It serves as a centralized platform for accurate household profiling, collecting demographic data on various categories such as persons with disabilities, single mothers, senior citizens, and unemployed individuals. The system features refined search queries based on specific criteria, providing relevant results.
+            </p>
+        </div>
+    </section><!-- End About Us Section -->
+    <div class="section-title" id="brief-description">
+      <h2>The Developers</h2>
+         <p>This is a brief description of the developers.</p>
+          <button class="btn btn-link" onclick="toggleDevelopers()">
+            <i class="fa-solid fa-caret-down" style="color: #5cb874;"></i>
+        </button>    
+    </div>
+
+    <section class="swiper mySwiper" id="developer-section" style="display: none;">
+      <div class="swiper-wrapper">
+  
+  
+        <div class="card swiper-slide" id="karl">
+          <div class="card__image">
+            <img src="{% static 'gallery/olea2.jpg' %}" alt="card image">
+          </div>
+  
+          <div class="card__content">
+            <span class="card__title">Project Leader and</span>
+            <span class="card__title">Programmer</span>
+            <span class="card__name">Emanwel Fernando Olea</span>
+            <p class="card__text">Your trust in our software means the world to us.</p>
+           
+          </div>
+        </div>
+
+        <div class="card swiper-slide" id="angel">
+          <div class="card__image">
+            <img src="{% static 'gallery/rutchel.jpg' %}" alt="card image" >
+          </div>
+  
+          <div class="card__content">
+            <span class="card__title" >System Data Analyst</span>
+            <a class="card__name" href="https://www.facebook.com/cheldgaf">Rutchel R. Talingting</a>
+            <p class="card__text">Thank you once again for being a part of our community. We appreciate your support and look forward to continuing to serve you.</p>
+            
+          </div>
+        </div>
+  
+        <div class="card swiper-slide" id="jhane">
+          <div class="card__image">
+            <img src="{% static 'gallery/mariane.jpg' %}" alt="card image">
+          </div>
+  
+          <div class="card__content">
+            <span class="card__title">System Librarian</span>
+            <span class="card__name">Marianne F. Vijuan</span>
+            <p class="card__text">Thank you for entrusting us with your web experience.</p>
+           
+          </div>
+        </div>
+  
+        <div class="card swiper-slide" id="ranil">
+          <div class="card__image">
+            <img src="{% static 'gallery/karl.jpg' %}" alt="card image">
+          </div>
+  
+          <div class="card__content">
+            <span class="card__title">Programmer</span>
+            <span class="card__name">Karl Moises Trinidad</span>
+            <p class="card__text">Thanks for letting us craft a digital space that reflects your uniqueness. Enjoy the journey!</p>
+            
+          </div>
+        </div>
+        <div class="card swiper-slide" id="rey">
+          <div class="card__image">
+            <img src="{% static 'gallery/bevelyn.jpg' %}" alt="card image">
+          </div>
+  
+          <div class="card__content">
+            <span class="card__title">System Librarian</span>
+            <span class="card__name">Bevelyn P Cacharro</span>
+            <p class="card__text">Designing with purpose and passion, we appreciate you choosing our user-centric creations.</p>
+            
+          </div>
+        </div>
+        
+      
+  
+      </div>
+
+    </section>
+    <!-- End Services Section -->
+    <!-- Script for this feature -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+    <script>
+      function toggleDevelopers() {
+          var developerSection = document.getElementById("developer-section");
+          developerSection.style.display = (developerSection.style.display === "none") ? "block" : "none";
+      }
+  </script>
+
+    <script>
+      var swiper = new Swiper(".mySwiper", {
+        effect: "coverflow",
+        grabCursor: true,
+        centeredSlides: true,
+        slidesPerView: "auto",
+        coverflowEffect: {
+          rotate: 0,
+          stretch: 0,
+          depth: 300,
+          modifier: 1,
+          slideShadows: false,
+        },
+        pagination: {
+          el: ".swiper-pagination",
+        },
+      });
+    </script>
+    <!-- end of Script for this feature -->
+
+    <!-- ======= Support Us Section ======= -->
+    
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="container">
+      <img src="{% static 'gallery/800px-Biliran_Provincial_Seal.png' %}" alt="Logo" width="100">
+      <img src="{% static 'gallery/Bipsu_new.png' %}" alt="Logo" width="110">
+      <img src="{% static 'gallery/stsc-removebg-preview (1).png' %}" alt="Logo" width="100">
+    
+      
+      <p>"In sincere appreciation, we extend our heartfelt gratitude to all who contributed to the completion of this thesis. Special thanks to our Dean, Dr. Chona B. Sabinay, for her invaluable support and guidance. We also express our gratitude to Mr. Reynold G. Bustillo for fostering an inclusive academic community and to the Panel Chairperson for ensuring a smooth presentation. Our advisers, Mr. Joshua P. Casas and Dr. Chona B. Sabinay, deserve special recognition for their unwavering support and belief in our abilities. Lastly, to the panel members, we thank you for your valuable insights and constructive feedback, which greatly enriched the development of our thesis."</p>
+      <div class="social-links">
+        <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+        <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+        <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+        <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+        <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+      </div>
+      <div class="copyright">
+        &copy; Copyright <strong><span></span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        Designed by <a href="https://bootstrapmade.com/">Emanwel Fernando D. Olea</a>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'js/home/main.js' %}" ></script>
+
+  <script>
+    function togglePopup() {
+        var popupOverlay = document.getElementById('popup-overlay');
+        popupOverlay.style.display = (popupOverlay.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function showLoginForm(role) {
+        var appLauncher = document.querySelector('.app-launcher');
+        var loginForm = document.getElementById('login-form');
+        appLauncher.style.display = 'none';
+        loginForm.style.display = 'block';
+    }
+
+    function goBack() {
+        var appLauncher = document.querySelector('.app-launcher');
+        var loginForm = document.getElementById('login-form');
+        appLauncher.style.display = 'block';
+        loginForm.style.display = 'none';
+    }
+    function redirectToLogin(userRole) {
+        var url;
+        if (userRole === 'super_admin') {
+            url = '/login/super_admin/';
+        } else if (userRole === 'provincial_admin') {
+            url = '/login/provincial_admin/';
+        } else if (userRole === 'municipal_admin') {
+            url = '/login/municipal_admin/';
+        } else if (userRole === 'barangay_admin') {
+            url = '/login/barangay_admin/';
+        } else if (userRole === 'barangay_staff') {
+            url = '/login/barangay_staff/';
+        } else if (userRole === 'tourist_staff') {
+            url = '/login/tourist_staff/';
+        }
+        window.location.href = url;
+    }
+</script>
+{% comment %} <script async data-id="9559188232" id="chatling-embed-script" type="text/javascript" src="https://chatling.ai/js/embed.js"></script> {% endcomment %}
+</body>
+
+</html>

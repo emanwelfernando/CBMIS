@@ -1,0 +1,154 @@
+{% load geojson_tags %}
+{% load leaflet_tags %}
+{% leaflet_js %}
+{% leaflet_css %}
+<style>
+  .custom-outline:focus {
+    outline-color: black !important;
+  }
+  
+  .custom-outline:focus {
+    outline: none !important;
+  }
+
+  .section-heading {
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  .section-divider {
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Adjust input field widths */
+  .form-control {
+    width: 100%;
+  }
+
+  .column-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .column {
+    flex-basis: calc(50% - 15px); /* Adjust spacing as needed */
+  }
+  .search-results {
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+
+  .selected-beneficiary {
+    display: inline-block;
+    margin: 4px;
+    pediting: 8px 12px;
+    background-color: #e2e3e5;
+    border-radius: 20px;
+    position: relative;
+  }
+
+  .selected-beneficiary .btn-delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+  }
+
+    .fixed-size-photo {
+        width: 200px; /* Set the desired width */
+        height: 150px; /* Set the desired height */
+        object-fit: cover; /* Preserve aspect ratio and cover the container */
+    }
+
+    textarea[name="description"] {
+      height: 120px; /* Set the desired height */
+  }
+</style>
+
+<div class="modal fade" id="editTourist_spots{{ tourist_spot.id }}" tabindex="-1" aria-labelledby="editTourist_spotsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTourist_spotsModalLabel">Edit Tourist Spot Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form {% block action %} action="{% url 'tourist-staff-edit-tourist-spot' pk=tourist_spot.id %}" {% endblock action %} method="POST" enctype="multipart/form-data" autocomplete="on">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- Column 1 -->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control custom-outline" name="name" maxlength="50" placeholder="Name" value="{{ tourist_spot.name }}">
+                    </div>
+                    <div class="input-group mb-3">
+                      <textarea class="form-control custom-outline" name="description" rows="4" placeholder="Description">{{ tourist_spot.description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label for="photo" class="form-label">Current Photo</label>
+                      {% if tourist_spot.photo %}
+                          <img src="{{ tourist_spot.photo.url }}" alt="{{ tourist_spot.name }} Photo" class="img-thumbnail fixed-size-photo">
+                      {% else %}
+                          <p>No photo available</p>
+                      {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">New Photo</label>
+                        <input type="file" class="form-control" id="photo" name="photo">
+                    </div>
+
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control custom-outline" name="street" maxlength="50" placeholder="street" value="{{ tourist_spot.address.street }}">
+                  </div>
+                  <label for="barangay" class="form-label">Barangay</label>
+                    <div class="input-group mb-3">
+                      <select class="form-select" name="barangay">
+                          {% for barangay in barangays %}
+                              <option value="{{ tourist_spot.barangay }}">{{ tourist_spot.barangay }}</option>
+                              <option value="{{ barangay.id }}">{{ barangay.name }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+
+                    <div class="input-group mb-3">
+                        <select class="form-select" name="spot_type">
+                            <option value="{{ tourist_spot.spot_type }}">{{ tourist_spot.spot_type }}</option>
+                            <option value="Natural Attraction">Natural Attraction</option>
+                            <option value="Historical/Cultural Site">Historical/Cultural Site</option>
+                            <option value="Adventure/Outdoor Activity">Adventure/Outdoor Activity</option>
+                            <option value="Recreational/Relaxation Spot">Recreational/Relaxation Spot</option>
+                            <option value="EducationalInstitution">Educational Institution</option>
+                            <option value="Food/Culinary Spot">Food/Culinary Spot</option>
+                            <option value="Scenic View/Lookout Point">Scenic View/Lookout Point</option>
+                            <option value="Festival/Event">Festival/Event</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Column 2 -->
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location:</label>
+                        <div id="map2-{{ tourist_spot.id }}" style="width: 100%; height: 300px; margin-bottom: 20px;"></div>
+                        <input type="hidden" id="latitude-{{ tourist_spot.id }}" name="latitude" value="{{ tourist_spot.latitude }}">
+                        <input type="hidden" id="longitude-{{ tourist_spot.id }}" name="longitude" value="{{ tourist_spot.longitude }}">
+                        <div class="row">
+                            <div class="col">
+                                <label for="latitude" class="form-label">Latitude:</label>
+                                <input type="text" class="form-control" id="latitudeDisplay-{{ tourist_spot.id }}" value="{{ tourist_spot.latitude }}" readonly>
+                            </div>
+                            <div class="col">
+                                <label for="longitude" class="form-label">Longitude:</label>
+                                <input type="text" class="form-control" id="longitudeDisplay-{{ tourist_spot.id }}" value="{{ tourist_spot.longitude }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Save Changes</button>
+        </form>
+    </div>
+    

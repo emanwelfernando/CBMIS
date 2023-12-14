@@ -1,0 +1,48 @@
+<!-- Modal -->
+<div class="modal fade" {% block modal-id %} id="addBarangay" {% endblock modal-id %} tabindex="-1" aria-labelledby="addBarangayLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addBarangaylLabel">{% block modal-title %}Add Barangay{% endblock modal-title %}</h1>
+      </div>
+      <form {% block action %} action="{% url 'provincial-admin-add-barangay' %}" {% endblock action %} method="POST" autocomplete="off">
+        {% csrf_token %}
+        <div class="modal-body">
+          {% block Value-id %}{% endblock Value-id %} 
+          <div class="input-group mb-3">
+            <div class="custom-input-wrapper">
+              <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+              <input type="text" class="form-control" name="name" maxlength="50" placeholder="Barangay" required {% block Value-name %}{% endblock Value-name %}>
+            </div>
+          </div> 
+          {% comment %} <div class="input-group mb-3">
+            <div class="custom-input-wrapper">
+              <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+              <input type="number" class="form-control" name="location" maxlength="50" placeholder="Location" required {% block Value-location %}{% endblock Value-location %}>
+            </div>
+          </div>  {% endcomment %}
+          <!-- Render other input fields individually -->
+          {% for field in form %}
+              {% if field.name == 'municipal' %}
+              <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                <div class="custom-select-wrapper">
+                  {% block municipal-field %}
+                  {{ field }}
+                  {% endblock municipal-field %}
+                </div>
+              </div>
+              {% endif %}
+          {% endfor %}
+        </div>
+          <!-- Add more input fields as needed -->
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" value="submit">{% block btn-action %}Add Barangay{% endblock btn-action %}</button>
+          <button type="submit" class="btn btn-success" name="save_and_add" value="save_and_add" >Save and Add Another</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

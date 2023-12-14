@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Delete Document</h2>
+  <p>Are you sure you want to delete this document?</p>
+  <p>Document Path: {{ document_path }}</p>
+  <form method="post" action="{% url 'delete-document' doc_file %}">
+    {% csrf_token %}
+    <input type="submit" value="Delete">
+  </form>
+  <a href="{% url 'barangay-staff-document' %}">Cancel</a>
+{% endblock %}

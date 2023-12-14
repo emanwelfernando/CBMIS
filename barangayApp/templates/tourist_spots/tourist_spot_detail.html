@@ -1,0 +1,4 @@
+<h2>{{ spot.name }}</h2>
+Latitude: {{ spot.location.y }}<br>
+Longitude: {{ spot.location.x }}<br>
+<a href="{% url 'edit_tourist_spot' spot.id %}">Edit</a>

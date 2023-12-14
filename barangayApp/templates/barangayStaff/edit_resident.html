@@ -1,0 +1,81 @@
+{% extends 'barangayStaff/add_resident.html' %}
+
+{% block modal-id %} id="editResident{{ resident_record.id }}" {% endblock modal-id %}
+
+{% block modal-title %}Edit Resident Information{% endblock modal-title %}
+
+{% block action %} action="{% url 'barangay-staff-edit-resident' pk=resident_record.id %}" {% endblock action %}
+
+{% block btn-action %}Save Changes{% endblock btn-action %}
+{% block first-name %}value="{{ resident_record.first_name }}"{% endblock first-name %}
+{% block last-name %}value="{{ resident_record.last_name }}"{% endblock last-name %}
+{% block middle-name %}value="{{ resident_record.middle_name }}"{% endblock middle-name %}
+{% block suffix %}value="{{ resident_record.suffix }}"{% endblock suffix %}
+{% block birthdate %}value="{{ resident_record.birth_date|date:"Y-m-d" }}"{% endblock birthdate %}
+{% block phone_number %}value="{{ resident_record.phone_number }}"{% endblock phone_number %}
+{% block relationship_option %}
+  <option value="{{ resident_record.relationship }}" selected>{{ resident_record.get_relationship_display }}</option>
+{% endblock relationship_option %}
+{% block sex_option %}
+  <option value="{{ resident_record.sex }}" selected>{{ resident_record.get_sex_display }}</option>
+{% endblock sex_option %}
+{% block vaccination_option %}
+  <option value="{{ resident_record.vaccination }}" selected>{{ resident_record.get_vaccination_display }}</option>
+{% endblock vaccination_option %}
+{% block status_option %}
+  <option value="{{ resident_record.status }}" selected>{{ resident_record.get_status_display }}</option>
+{% endblock status_option %}
+{% block specific_occupation %}value="{{ economic_record.specific_occupation }}"{% endblock specific_occupation %}
+{% block industry_of_work %}value="{{ economic_record.industry_of_work }}"{% endblock industry_of_work %}
+{% block working_arrangement %}
+  <option value="{{ economic_record.working_arrangement }}" selected>{{ economic_record.get_working_arrangement_display }}</option>
+{% endblock working_arrangement %}
+{% block nature_of_employment %}
+  <option value="{{ economic_record.nature_of_employment }}" selected>{{ economic_record.get_nature_of_employment_display }}</option>
+{% endblock nature_of_employment %}
+{% block class_of_worker %}
+  <option value="{{ economic_record.class_of_worker }}" selected>{{ economic_record.get_class_of_worker_display }}</option>
+{% endblock class_of_worker %}
+{% block basis_of_payment %}
+  <option value="{{ economic_record.basis_of_payment }}" selected>{{ economic_record.get_basis_of_payment_display }}</option>
+{% endblock basis_of_payment %}
+{% block early_childhood_education %}
+  <option value="{{ education_record.early_childhood_education }}" selected>{{ education_record.get_early_childhood_education_display }}</option>
+{% endblock early_childhood_education %}
+{% block primary_education %}
+  <option value="{{ education_record.primary_education }}" selected>{{ education_record.get_primary_education_display }}</option>
+{% endblock primary_education %}
+{% block lower_secondary_education %}
+  <option value="{{ education_record.lower_secondary_education }}" selected>{{ education_record.get_lower_secondary_education_display }}</option>
+{% endblock lower_secondary_education %}
+{% block upper_secondary_education %}
+  <option value="{{ education_record.upper_secondary_education }}" selected>{{ education_record.get_upper_secondary_education_display }}</option>
+{% endblock upper_secondary_education %}
+{% block curriculum_strands %}
+  <option value="{{ education_record.curriculum_strands }}" selected>{{ education_record.get_curriculum_strands_display }}</option>
+{% endblock curriculum_strands %}
+{% block bachelor_education %}
+  <option value="{{ education_record.bachelor_education }}" selected>{{ education_record.get_bachelor_education_display }}</option>
+{% endblock bachelor_education %}
+{% block master_doctoral_education %}
+  <option value="{{ education_record.master_doctoral_education }}" selected>{{ education_record.get_master_doctoral_education_display }}</option>
+{% endblock master_doctoral_education %}
+{% block undergraduate_reason %}
+  <option value="{{ education_record.undergraduate_reason }}" selected>{{ education_record.get_undergraduate_reason_display }}</option>
+{% endblock undergraduate_reason %}
+{% block num_senior_citizens %}value="{{ health_record.num_senior_citizens }}"{% endblock num_senior_citizens %}
+{% block num_pregnant_lactating_mothers %}value="{{ health_record.num_pregnant_lactating_mothers }}"{% endblock num_pregnant_lactating_mothers %}
+{% block num_beneficiaries_with_disability %}value="{{ health_record.num_beneficiaries_with_disability }}"{% endblock num_beneficiaries_with_disability %}
+{% block disability %}
+  <option value="{{ health_record.disability }}" selected>{{ health_record.disability }}</option>
+{% endblock disability %}
+{% block illness %}
+  <option value="{{ health_record.illness }}" selected>{{ health_record.illness }}</option>
+{% endblock illness %}
+
+{% block pregnancy_status %}
+  <option value="{{ health_record.pregnancy_status }}" selected>{{ health_record.pregnancy_status }}</option>
+{% endblock pregnancy_status %}
+{% block malnutrition_status %}
+  <option value="{{ health_record.malnutrition_status }}" selected>{{ health_record.malnutrition_status }}</option>
+{% endblock malnutrition_status %}

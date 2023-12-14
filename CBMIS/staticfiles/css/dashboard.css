@@ -1,0 +1,85 @@
+#wrapper{
+    overflow-x: hidden;
+    background-color: gainsboro;
+}
+
+#page-content-wrapper{
+    width: 80%;
+}
+.box_title{
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+    padding-top: 0px;
+    padding-bottom: 5px;
+    float:left;
+    padding-left:10px;
+    text-align: left;
+    margin: auto;
+    width:200px;
+    border-color: transparent !important;
+    outline: transparent!important;
+    }
+.graphBox{
+    width: 800px;
+    height: 235px;
+}
+.img{
+    width: 335px;
+    height:100px;
+    background-image: url(../images/clientslogo.jpg');
+    margin-bottom: 10px;
+}
+#tc{
+    font-size: 40px;
+    width: 335px;
+    text-align: center;
+    margin-top: 5px;
+}
+.clients_title{
+    text-align: center;
+    font-weight: bolder;
+    font-size: large;
+    }
+.rounded-full{
+    border-radiusI 100%;
+}
+@media (max-width: 991px){
+    .graphBox{
+    grid-template-columns: 1fr;
+    height: auto;
+    }
+    #clientChart{
+    margin:10px;
+    padding:5px;
+    }
+    #clientChart{
+        margin:10px;
+        padding:5px;
+    }
+    .box_title{
+        text-align: center;
+        font-weight: bold;
+        font-size: xx-large;
+        padding-top: 0px;
+        padding-bottom: 5px;
+        float:left;
+        padding-left: 10px;
+        text-align: left;
+        margin: auto;
+        width:100px;
+        border-color: transparent!important;
+        outline: transparent !important;
+    }
+    #tc{
+        font-size: 40px;
+        width: 335px;
+        text-align: center;
+        margin-top: 5px;
+    }
+    .img{
+        width: 235px;
+        height:50px;
+        background-image: url(../images/clientslogo.jpg");
+        margin-bottom: 10px;
+    }

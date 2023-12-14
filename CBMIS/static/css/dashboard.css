@@ -1,0 +1,100 @@
+.col-md-9 .graphbox {
+    height: 250px; /* Set the desired height */
+}
+
+.col-md-3 .graphbox {
+    height: 250px; /* Set the desired height */
+}
+  
+.summary_title {
+    text-align: center;
+    font-weight: bolder;
+    font-size: large;
+}
+
+#wrapper{
+    overflow-x: hidden;
+    background-color: #f2f2f2;
+}
+
+#page-content-wrapper{
+    width: 80%;
+}
+.box_title {
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+    padding-top: 0px;
+    padding-bottom: 5px;
+    float: left;
+    padding-left: 10px;
+    text-align: left;
+    margin: auto;
+    width: 200px;
+    border-color: transparent !important;
+    outline: transparent !important;
+}
+
+#tc {
+    font-size: 40px;
+    text-align: center;
+    margin-top: 5px;
+}
+
+#tc input {
+    display: block;
+    margin: 0 auto;
+    width: fit-content;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: inherit;
+}
+
+.clients_title{
+    text-align: center;
+    font-weight: bolder;
+    font-size: large;
+    }
+.rounded-full{
+    border-radiusI 100%;
+}
+@media (max-width: 991px){
+    .graphBox{
+    grid-template-columns: 1fr;
+    height: auto;
+    }
+    #clientChart{
+    margin:10px;
+    padding:5px;
+    }
+    #clientChart{
+        margin:10px;
+        padding:5px;
+    }
+    .box_title{
+        text-align: center;
+        font-weight: bold;
+        font-size: xx-large;
+        padding-top: 0px;
+        padding-bottom: 5px;
+        float:left;
+        padding-left: 10px;
+        text-align: left;
+        margin: auto;
+        width:100px;
+        border-color: transparent!important;
+        outline: transparent !important;
+    }
+    #tc{
+        font-size: 40px;
+        width: 100px;
+        text-align: center;
+        margin-top: 5px;
+    }
+    .img{
+        width: 235px;
+        height:50px;
+        background-image: url(../images/clientslogo.jpg");
+        margin-bottom: 10px;
+    }

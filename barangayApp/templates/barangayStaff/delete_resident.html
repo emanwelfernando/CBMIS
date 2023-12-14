@@ -1,0 +1,21 @@
+<div class="modal fade" id="deleteResident{{ resident_record.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="confirmDeleteModalLabel">{% block modal-title %}Confirm Delete{% endblock modal-title %}</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">    
+        <p>Are you sure you want to delete resident <br>"{{ resident_record.last_name }}, {{ resident_record.first_name }} {{ resident_record.middle_name|slice:":1" }}.{{ resident_record.suffix }}"?</p>
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{% url 'barangay-staff-delete-resident' pk=resident_record.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+{% load static %}
+
+<div class="modal fade" id="editUser{{ i.id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ i.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel{{ i.id }}">Municipal Update User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'municipal-admin-edit-user' form.instance.id %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        {{ form.username.label_tag }}
+                        <input type="text" class="form-control" name="username" maxlength="150" value="{{ i.username }}" {% if not form.username.field.required %}required{% endif %}>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_current_password" class="form-label">Current Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="id_current_password" name="current_password">
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" title="Toggle Password Visibility">
+                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_new_password1" class="form-label">New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="id_new_password1" name="new_password1" >
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword1" title="Toggle Password Visibility">
+                                <i class="fas fa-eye" id="togglePasswordIcon1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_new_password2" class="form-label">Confirm New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="id_new_password2" name="new_password2">
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword2" title="Toggle Password Visibility">
+                                <i class="fas fa-eye" id="togglePasswordIcon2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.user_type.label_tag }}
+                        {{ form.user_type }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.is_active.label_tag }}
+                        {{ form.is_active }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.barangay.label_tag }}
+                        {{ form.barangay }}
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-md btn-block">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

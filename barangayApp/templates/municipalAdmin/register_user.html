@@ -1,0 +1,42 @@
+<div class="modal fade" id="registerUser" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Municipal Register User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'municipal-admin-user-register' %}">
+                    {% csrf_token %}
+                    
+                    <label for="id_username" class="form-label">Username</label>
+                    {{ form.username }}
+
+                    <label for="id_username" class="form-label">Password</label>
+                    {{ form.password1 }}
+
+                    <label for="id_username" class="form-label">Confirm Password</label>
+                    {{ form.password2 }}
+
+                    <label for="id_username" class="form-label">User Type</label>
+                    {{ form.user_type }}
+
+                    <div class="mb-3">
+                    <label for="id_barangay" class="form-label">Barangay</label>
+                        <select name="{{ form.barangay.name }}" class="form-select" name="barangay">
+                            {% for barangay in form.barangay.field.queryset %}
+                                {% if barangay.municipal == request.user.municipal %}
+                                    <option value="{{ barangay.id }}">{{ barangay.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success btn-md btn-block">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

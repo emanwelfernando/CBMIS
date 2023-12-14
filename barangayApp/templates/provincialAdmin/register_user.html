@@ -1,0 +1,41 @@
+<div class="modal fade" id="registerUser" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Provincial Register User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'provincial-admin-user-register' %}">
+                    {% csrf_token %}
+                    
+                    
+                    <label for="id_username" class="form-label">Username</label>
+                    {{ form.username }}
+
+                    <label for="id_username" class="form-label">Password</label>
+                    {{ form.password1 }}
+
+                    <label for="id_username" class="form-label">Confirm Password</label>
+                    {{ form.password2 }}
+
+                    <label for="id_username" class="form-label">User Type</label>
+                    {{ form.user_type }}
+
+                    <div class="mb-3">
+                    <label for="id_barangay" class="form-label">Municipal</label>
+                        <select name="{{ form.municipal.name }}" class="form-select" name="municipal">
+                            {% for municipal in form.municipal.field.queryset %}
+                                    <option value="{{ municipal.id }}">{{ municipal.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success btn-md btn-block">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

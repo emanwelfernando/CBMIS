@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<script defer src="{% static 'js/bootstrap.bundle.min.js'  %}" ></script>
+
+<style>
+    #wrapper{
+        overflow-x: hidden;
+        background-color: #f2f2f2;
+    }
+    .text-center-container {
+        padding-top: 15px; 
+    }
+    .custom-btn-width {
+        width: 100% !important;
+    }
+</style>
+
+<div class="d-flex" id="wrapper">
+    
+    {% include 'provincialAdmin/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 page-content">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">Barangay</div>
+                            </div>
+                        </div>
+                        <br>
+                        <div>
+                            <div id="map" style="height: 300px;"></div>
+                            <hr>
+
+                            <div style="overflow-x:auto table-Layout:fixed">
+                                <div class="row table-container">
+                                      <table class="table">
+                                        <thead>
+                                        <tr>                                                                        
+                                            <th scope="col">Barangay</th>
+                                            <th scope="col">Municipal</th>
+                                            <th class="sticky-header" scope="col" style="text-align: center;">Action</th>    
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for i in barangays %}
+                                            <tr> 
+        
+                                                <td>{{i.name}}</td>
+                                                <td>{{i.municipal.name}}</td>
+                                                <td style="text-align: center">
+                                                    <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewResident{{ i.id }}">
+                                                        <i class="fa-sharp fa-solid fa-eye"></i>
+                                                    </a>                                         
+                                                    {% include 'provincialAdmin/view_resident.html' %}   
+                                                    <a class="btn btn-success btn-sm btn-block" title="Edit" data-bs-toggle="modal" data-bs-target="#editBarangay{{ i.id }}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>     
+                                                    {% include 'provincialAdmin/edit_barangay.html' %}
+                                                    {% comment %} <a class="btn btn-success btn-sm btn-block" title="Delete"  id="delete_barangay{{ i.id }}_{{ i.name }}" data-bs-toggle="modal" data-bs-target="#deleteBarangay{{ i.id }}">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                    {% include 'superAdmin/delete_barangay.html' %} {% endcomment %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    </table>    
+                                </div>
+                                <div class="text-center-container">
+                                    <div class="text-center">
+                                        {% if barangays.has_previous %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Previous Page" href="?page={{ barangays.previous_page_number }}">Previous Page</a>
+                                        {% endif %}
+                                    
+                                        <button type="button" class="btn btn-outline-secondary btn-sm">{{ barangays.number }}</button>
+                                    
+                                        {% if barangays.has_next %}
+                                            <a class="btn btn-success btn-sm btn-block" title="Next Page" href="?page={{ barangays.next_page_number }}">Next Page</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                            </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>                          
+</div>    
+
+
+  
+<script>
+    var map = L.map('map').setView([11.635, 124.4849], 10); // Set the initial view
+
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map);
+
+    {% for barangay in barangays %}
+        var geojson = {{ barangay.geom.geojson|safe }};
+        L.geoJSON(geojson).addTo(map);
+    {% endfor %}
+</script>
+  
+{% endblock %}

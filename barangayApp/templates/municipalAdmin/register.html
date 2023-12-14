@@ -1,0 +1,70 @@
+{% load static %}
+<div class="modal fade" id="registerUser" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'municipal-admin-user-register' %}">
+                    {% csrf_token %}
+                    
+                    <label for="id_username" class="form-label">Username</label>
+                    {{ form.username }}
+
+                    <label for="id_username" class="form-label">Password</label>
+                    {{ form.password1 }}
+
+                    <label for="id_username" class="form-label">Confirm Password</label>
+                    {{ form.password2 }}
+
+                    <label for="id_username" class="form-label">User Type</label>
+                    {{ form.user_type }}
+
+                    <div class="mb-3">
+                        {{ form.barangay.label_tag }}
+                        <select name="{{ form.barangay.name }}" class="form-select" name="barangay">
+                            {% for barangay in form.barangay.field.queryset %}
+                                {% if barangay.municipal == request.user.municipal %}
+                                    <option value="{{ barangay.id }}">{{ barangay.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+
+                    <button type="submit" class="btn btn-success btn-md btn-block">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script>
+    // Password visibility toggle function
+    function togglePasswordVisibility(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const passwordIcon = $('#' + iconId);
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.removeClass('fa-eye');
+            passwordIcon.addClass('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.removeClass('fa-eye-slash');
+            passwordIcon.addClass('fa-eye');
+        }
+    }
+
+    // Add event listeners for password visibility toggle buttons
+    $('#togglePassword1').on('click', function() {
+        togglePasswordVisibility('id_new_password1', 'togglePasswordIcon1');
+    });
+
+    $('#togglePassword2').on('click', function() {
+        togglePasswordVisibility('id_new_password2', 'togglePasswordIcon2');
+    });
+</script>

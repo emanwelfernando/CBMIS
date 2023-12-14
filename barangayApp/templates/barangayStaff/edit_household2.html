@@ -1,0 +1,143 @@
+<div class="modal fade" id="editHousehold{{ household.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="selected-head-ids" class="form-label">Household Head:</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control" id="selected-head-ids" name="selected_head_ids" value="{{ household.household_head }}">
+                        <ul id="search-results-head" class="list-group search-results"></ul>
+                    </div>
+                    <label for="selected-head-ids" class="form-label">Selected Household Head:</label>
+                    <div id="selected-head" class="mb-3">
+                        {% for resident in household.selected_head_residents.all %}
+                            <div class="badge bg-success rounded-pill me-2 selected-result" data-resident-id="{{ resident.id }}">
+                                {{ resident.full_name }}
+                                <button type="button" class="btn-close btn-close-white"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Household Beneficiaries -->
+                <div class="mb-3">
+                    <label for="selected-members-ids" class="form-label">Household Members:</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control" id="selected-members-ids" name="selected_members_ids">
+                        <ul id="search-results" class="list-group search-results"></ul>
+                    </div>
+                    <label for="selected-members-ids" class="form-label">Selected Household Members:</label>
+                    <div id="selected-members" class="mb-3">
+                        {% for resident in household.selected_members_residents.all %}
+                            <div class="badge bg-success rounded-pill me-2 selected-result" data-resident-id="{{ resident.id }}">
+                                {{ resident.full_name }}
+                                <button type="button" class="btn-close btn-close-white"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const headInput = document.getElementById('selected-head-ids-{{ household.id }}');
+        const headResults = document.getElementById('search-results-head');
+        const membersInput = document.getElementById('selected-members-ids');
+        const membersResults = document.getElementById('search-results');
+        const selectedMembers = document.getElementById('selected-members');
+        const selectedHead = document.getElementById('selected-head');
+    
+        function showResults(results, inputElement, resultsElement, selectedContainer, addSelectedResident) {
+            resultsElement.innerHTML = '';
+    
+            results.slice(0, 10).forEach(result => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-group-item');
+                listItem.innerText = result.full_name;
+    
+                listItem.addEventListener('click', function() {
+                    const selectedResident = result;
+                    const selectedName = selectedResident.full_name;
+                    const residentId = selectedResident.id;
+    
+                    inputElement.dataset.residentId = residentId;
+    
+                    addSelectedResident(selectedContainer, residentId, selectedName);
+    
+                    inputElement.value = '';
+                    resultsElement.innerHTML = '';
+                });
+    
+                resultsElement.appendChild(listItem);
+            });
+        }
+    
+        function addSelectedResident(selectedContainer, residentId, selectedName) {
+            const selectedResidentElement = document.createElement('div');
+            selectedResidentElement.classList.add('badge', 'bg-success', 'rounded-pill', 'me-2', 'selected-result');
+            selectedResidentElement.innerText = selectedName;
+            selectedResidentElement.dataset.residentId = residentId;
+    
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('btn-close', 'btn-close-white');
+            deleteButton.addEventListener('click', function() {
+                selectedResidentElement.remove();
+            });
+    
+            selectedResidentElement.appendChild(deleteButton);
+            selectedContainer.appendChild(selectedResidentElement);
+        }
+    
+        headInput.addEventListener('input', function() {
+            const searchQuery = headInput.value;
+            if (!searchQuery.trim()) {
+                headResults.innerHTML = '';
+                return;
+            }
+    
+            // Modify the URL to match your Django endpoint for searching residents
+            fetch(`/api/search_residents/?q=${searchQuery}`)
+                .then(response => response.json())
+                .then(data => {
+                    showResults(data.results, headInput, headResults, selectedHead, addSelectedResident);
+                });
+        });
+    
+        membersInput.addEventListener('input', function() {
+            const searchQuery = membersInput.value;
+            if (!searchQuery.trim()) {
+                membersResults.innerHTML = '';
+                return;
+            }
+    
+            // Modify the URL to match your Django endpoint for searching members
+            fetch(`/api/search_members/?q=${searchQuery}`)
+                .then(response => response.json())
+                .then(data => {
+                    showResults(data.results, membersInput, membersResults, selectedMembers, addSelectedResident);
+                });
+        });
+    
+        document.querySelector('form').addEventListener('submit', function(event) {
+            // Handle household head
+            const selectedHeadIds = [...selectedHead.querySelectorAll('div')].map(div => div.dataset.residentId);
+            document.getElementById('selected-head-ids').value = selectedHeadIds.join(',');
+    
+            // Handle household members
+            const selectedMembersIds = [...selectedMembers.querySelectorAll('div')].map(div => div.dataset.residentId);
+            document.getElementById('selected-members-ids').value = selectedMembersIds.join(',');
+        });
+    });
+    
+</script>

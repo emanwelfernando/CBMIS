@@ -1,0 +1,390 @@
+<style>
+  .custom-outline:focus {
+    outline-color: black !important;
+  }
+  
+  .custom-outline:focus {
+    outline: none !important;
+  }
+
+  .section-heading {
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  .section-divider {
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Adjust input field widths */
+  .form-control {
+    width: 100%;
+  }
+
+  .column-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .column {
+    flex-basis: calc(50% - 15px); /* Adjust spacing as needed */
+  }
+</style>
+
+<!-- The Modal -->
+<div class="modal fade" {% block modal-id %} id="addResident" {% endblock modal-id %} tabindex="-1" aria-labelledby="addResidentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addResidentModalLabel">{% block modal-title %}Add Resident Information{% endblock modal-title %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form {% block action %} action="{% url 'barangay-staff-add-resident' %}" {% endblock action %} method="POST" autocomplete="on">
+          {% csrf_token %}
+
+          <div class="column-container">
+
+            <!-- Left Column -->
+            <div class="column">
+
+              <!-- Resident Profile -->
+              <div class="section-heading">Resident Profile</div>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control custom-outline" name="first_name" maxlength="50" placeholder="First Name" {% block first-name %}{% endblock first-name %}>
+              </div>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" name="last_name" maxlength="50" placeholder="Last Name" {% block last-name %}{% endblock last-name %}>
+              </div>
+              <div class="input-group mb-3">
+                  <input type="test" class="form-control" name="middle_name" maxlength="50" placeholder="Middle Name" {% block middle-name %}{% endblock middle-name %}>
+                </div>
+              <div class="input-group mb-3">
+                  <input type="test" class="form-control" name="suffix" maxlength="50" placeholder="Suffix" {% block suffix %}{% endblock suffix %}>
+              </div>
+              <div class="input-group mb-3">
+                  <input type="date" class="form-control" name="birth_date" placeholder="Birth Date (MM-DD-YYYY)" {% block birthdate %}{% endblock birthdate %}>
+              </div>
+              <div class="input-group mb-3">
+                  <input type="number" class="form-control" name="phone_number" maxlength="50" placeholder="Phone Number" {% block phone_number %}{% endblock phone_number %}>
+              </div>
+              {% comment %} <div class="input-group mb-3">
+                <select class="form-select" name="relationship">
+                    {% block relationship_option %}
+                    <option value="" disabled selected hidden>Relationship</option>
+                    {% endblock relationship_option %}
+                    <option value="Spouse">Spouse</option>
+                    <option value="Partner">Partner</option>
+                    <option value="Son">Son</option>
+                    <option value="Daughter">Daughter</option>
+                    <option value="Brother">Brother</option>
+                    <option value="Sister">Sister</option>
+                    <option value="Father">Father</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Mother-in-law">Mother-in-law</option>
+                    <option value="Father-in-law">Father-in-law</option>
+                    <option value="Stepson">Stepson</option>
+                    <option value="Stepdaughter">Stepdaughter</option>
+                    <option value="Son-in-law">Son-in-law</option>
+                    <option value="Daughter-in-law">Daughter-in-law</option>
+                    <option value="Brother-in-law">Brother-in-law</option>
+                    <option value="Sister-in-law">Sister-in-law</option>
+                    <option value="Uncle">Uncle</option>
+                    <option value="Aunt">Aunt</option>
+                    <option value="Nephew">Nephew</option>
+                    <option value="Niece">Niece</option>
+                    <option value="Boarder">Boarder</option>
+                    <option value="Domestic helper">Domestic helper</option>
+                    <option value="Nonrelative">Nonrelative</option>
+                    <option value="Other relative">Other relative</option>
+                </select>
+            </div> {% endcomment %}
+            <div class="input-group mb-3">
+                <select class="form-select" name="sex" id="id_sex">
+                  {% block sex_option %}
+                  <option value="" disabled selected hidden>Sex</option>
+                  {% endblock sex_option %}
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+            <div class="input-group mb-3">
+                <select class="form-select" name="vaccination" id="id_vaccination">
+                  {% block vaccination_option %}
+                  <option value="" disabled selected hidden>Vaccination</option>
+                  {% endblock vaccination_option %}
+                  <option value="Vaccinated">Vaccinated</option>
+                  <option value="Not Vaccinated">Not Vaccinated</option>
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <select class="form-select" name="status" id="id_status">
+                  {% block status_option %}
+                  <option value=""disabled selected hidden>Status</option>
+                  {% endblock status_option %}
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Annuled">Annuled</option>
+                  <option value="Widowed">Widowed</option>
+                  <option value="Separated">Separated</option>
+                  <option value="Common Law/Live-in">Common Law/Live-in</option>
+                  <option value="Unknown">Unknown</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+              
+              
+              <!-- Education & Literacy -->
+              <div class="section-heading">Education & Literacy</div>
+              <div class="input-group mb-3">
+                <select class="form-select" name="early_childhood_education">
+                  {% block early_childhood_education %}
+                  <option value="" disabled selected hidden>Early Childhood Education</option>
+                  {% endblock early_childhood_education %}
+                  <option value="No grade completed">No grade completed</option>
+                  <option value="Nursery">Nursery</option>
+                  <option value="Kindergarten">Kindergarten</option>
+                </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="primary_education">
+                          {% block primary_education %}
+                          <option value="" disabled selected hidden>Primary Education</option>
+                          {% endblock primary_education %}
+                          <option value="Grade 1">Grade 1</option>
+                          <option value="Grade 2">Grade 2</option>
+                          <option value="Grade 3">Grade 3</option>
+                          <option value="Grade 4">Grade 4</option>
+                          <option value="Grade 5">Grade 5</option>
+                          <option value="Grade 6">Grade 6</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="lower_secondary_education">
+                          {% block lower_secondary_education %}
+                          <option value="" disabled selected hidden>Lower Secondary Education</option>
+                          {% endblock lower_secondary_education %}
+                          <option value="Grade 7 / 1st year highschool">Grade 7 / 1st year highschool</option>
+                          <option value="Grade 8 / 2nd year highschool">Grade 8 / 2nd year highschool</option>
+                          <option value="Grade 9 / 3rd year highschool">Grade 9 / 3rd year highschool</option>
+                          <option value="Grade 10 / 4th year highschool">Grade 10 / 4th year highschool</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="upper_secondary_education">
+                          {% block upper_secondary_education %}
+                          <option value="" disabled selected hidden>Upper Secondary Education</option>
+                          {% endblock upper_secondary_education %}
+                          <option value="Grade 11">Grade 11</option>
+                          <option value="Grade 12">Grade 12</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="curriculum_strands">
+                          {% block curriculum_strands %}
+                          <option value="" disabled selected hidden>List of curriculum / Strands</option>
+                          {% endblock curriculum_strands %}
+                          <option value="General Academic Strand">General Academic Strand</option>
+                          <option value="Science Technology Engineering and Mathematics">Science Technology Engineering and Mathematics</option>
+                          <option value="Humanities and Social Sciences">Humanities and Social Sciences</option>
+                          <option value="Sports Track">Sports Track</option>
+                          <option value="Arts and Design">Arts and Design</option>
+                          <option value="Technology and Livelihood Education and Technical - Vocational Livelihood">Technology and Livelihood Education and Technical - Vocational Livelihood</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="bachelor_education">
+                          {% block bachelor_education %}
+                          <option value="" disabled selected hidden>Bachelor Education (Program)</option>
+                          {% endblock bachelor_education %}
+                          <option value="1st Year College">1st Year College</option>
+                          <option value="2nd Year College">2nd Year College</option>
+                          <option value="3rd Year College">3rd Year College</option>
+                          <option value="4th Year College">4th Year College</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="master_doctoral_education">
+                          {% block master_doctoral_education %}
+                          <option value="" disabled selected hidden>Master and Doctoral Level of Education</option>
+                          {% endblock master_doctoral_education %}
+                          <option value="Undergraduate">Undergraduate</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="undergraduate_reason">
+                          {% block undergraduate_reason %}
+                          <option value="" disabled selected hidden>Reason For Not Attending School</option>
+                          {% endblock undergraduate_reason %}
+                          <option value="Illness">Illness</option>
+                          <option value="Accessibility of School">Accessibility of School</option>
+                          <option value="Disability">Disability</option>
+                          <option value="Pregnancy">Pregnancy</option>
+                          <option value="Marriage">Marriage</option>
+                          <option value="High Cost of Education / Financial Concern">High Cost of Education / Financial Concern</option>
+                          <option value="Employment">Employment</option>
+                          <option value="Finished Schooling">Finished Schooling</option>
+                          <option value="Looking For Work">Looking For Work</option>
+                          <option value="Lack of Personal Interest">Lack of Personal Interest</option>
+                          <option value="Too young to go to School">Too young to go to School</option>
+                          <option value="Bullying">Bullying</option>
+                          <option value="Family Matters">Family Matters</option>
+                      </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Divider -->
+          <div class="section-divider"></div>
+
+          <div class="column-container">
+
+            <!-- Left Column -->
+            <div class="column">
+
+              <!-- Economic -->
+              <div class="section-heading">Economic</div>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" name="specific_occupation" placeholder="Specific Occupation" {% block specific_occupation %}{% endblock specific_occupation %}>
+              </div>
+              <div class="input-group mb-3">
+                  <input type="text" class="form-control" name="industry_of_work" placeholder="Industry of Work" {% block industry_of_work %}{% endblock industry_of_work %}>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="working_arrangement">
+                          {% block working_arrangement %}
+                          <option value="" disabled selected hidden>Working arrangement</option>
+                          {% endblock working_arrangement %}
+                          <option value="Default Place of Work">Default Place of Work</option>
+                          <option value="Work From Home">Work From Home</option>
+                          <option value="Home-based Work">Home-based Work</option>
+                          <option value="On Job Totation">On Job Rotation</option>
+                          <option value="On a Mixed Arrangement">On a Mixed Arrangement</option>
+                          <option value="On Reduced Hours">On Reduced Hours</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="nature_of_employment">
+                          {% block nature_of_employment %} 
+                          <option value="" disabled selected hidden>Nature of employment</option>
+                          {% endblock nature_of_employment %}
+                          <option value="Permanent Job/Business">Permanent Job/Business</option>
+                          <option value="Short Term/Seasonal Job">Short Term/Seasonal Job</option>
+                          <option value="Worked for Different Employers">Worked for Different Employers</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="class_of_worker">
+                          {% block class_of_worker %}
+                          <option value="" disabled selected hidden>Class of worker</option>
+                          {% endblock class_of_worker %}
+                          <option value="Private Household">Private Household</option>
+                          <option value="Private Establishment">Private Establishment</option>
+                          <option value="Government/Corporation">Government/Corporation</option>
+                          <option value="Self - Employed">Self - Employed</option>
+                          <option value="Unemployed">Unemployed</option>
+                          <option value="Employer">Employer</option>
+                          <option value="Family Operated Business">Family Operated Business</option>
+                      </select>
+              </div>
+              <div class="input-group mb-3">
+                      <select class="form-select" name="basis_of_payment">
+                          {% block basis_of_payment %}
+                          <option value="" disabled selected hidden>Basis of payment</option>
+                          {% endblock basis_of_payment %}
+                          <option value="Imputed Salary">Imputed salary</option>
+                          <option value="Per Piece">Per Piece</option>
+                          <option value="Per Hour">Per Hour</option>
+                          <option value="Per Day">Per Day</option>
+                          <option value="Monthly">Monthly</option>
+                          <option value="Weekly">Weekly</option>
+                          <option value="Other salary wages (specify)">Other salary wages (specify)</option>
+                      </select>
+              </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+
+              
+              <!-- Health -->
+            <div class="section-heading">Health</div>
+              <div class="input-group mb-3">
+                <select class="form-select" name="disability">
+                  {% block disability %}
+                  <option value="" disabled selected>Select Disability</option>
+                  {% endblock disability %}
+                  <option value="Visual Disability">Visual Disability</option>
+                  <option value="Hearing Disability">Hearing Disability</option>
+                  <option value="Intellectual Disability">Intellectual Disability</option>
+                  <option value="Learning Disability">Learning Disability</option>
+                  <option value="Mental Disability">Mental Disability</option>
+                  <option value="Physical Disability">Physical Disability</option>
+                  <option value="Psychosocial Disability">Psychosocial Disability</option>
+                  <option value="Speech and Language Impairment">Speech and Language Impairment</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+              <div class="input-group mb-3">
+                <select class="form-select" name="illness">
+                  {% block illness %}
+                  <option value="" disabled selected>Select Illness</option>
+                  {% endblock illness %}
+                  <option value="Diabetes">Diabetes</option>
+                  <option value="Cancer">Cancer</option>
+                  <option value="Hypertension">Hypertension</option>
+                  <option value="Tuberculosis (TB)">Tuberculosis (TB)</option>
+                  <option value="Acute Respiratory Infection">Acute Respiratory Infection</option>
+                  <option value="Acute Gastroenteritis">Acute Gastroenteritis</option>
+                  <option value="Common Colds, Cough, Flu/Fever">Common Colds, Cough, Flu/Fever</option>
+                  <option value="Cut/Wound">Cut/Wound</option>
+                  <option value="Burn">Burn</option>
+                  <option value="Fracture">Fracture</option>
+                  <option value="Dislocation">Dislocation</option>
+                  <option value="Surgical Illness">Surgical Illness</option>
+                  <option value="Covid-19">Covid-19</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+              <div class="input-group mb-3">
+                <select class="form-select" name="pregnancy_status">
+                  {% block pregnancy_status %}
+                  <option value="" disabled selected>Select Pregnancy Status</option>
+                  {% endblock pregnancy_status %}
+                  <option value="Pregnant">Pregnant</option>
+                  <option value="Not Pregnant">Not Pregnant</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+              <div class="input-group mb-3">
+                <select class="form-select" name="malnutrition_status">
+                  {% block malnutrition_status %}
+                  <option value="" disabled selected>Select Malnutrition Status</option>
+                  {% endblock malnutrition_status %}
+                  <option value="Severe malnutrition">Severe malnutrition</option>
+                  <option value="Moderate malnutrition">Moderate malnutrition</option>
+                  <option value="Mild malnutrition">Mild malnutrition</option>
+                  <option value="No malnutrition">No malnutrition</option>
+                </select>
+              </div>
+          </div>
+        </div>
+
+          <!-- Section Divider -->
+          <div class="section-divider"></div>
+
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" value="submit">{% block btn-action %}Add Resident{% endblock btn-action %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

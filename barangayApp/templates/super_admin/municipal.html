@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+{% comment %} <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" /> {% endcomment %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+
+<style>
+    #wrapper{
+        overflow-x: hidden;
+        background-color: #f2f2f2;
+    }
+    .text-center-container {
+        padding-top: 15px; 
+    }
+    .custom-btn-width {
+        width: 100% !important;
+    }
+</style>
+
+<div class="d-flex" id="wrapper">
+    
+    {% include 'provincialAdmin/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 page-content">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">Municipal</div>
+                            </div>
+                        </div>
+                        <br>
+                        <div>
+                            
+                <div id="map" style="height: 300px;"></div>
+                            <hr>
+                            <div style="overflow-x:auto table-Layout:fixed">
+                                <div class="row table-container">
+                                      <table class="table">
+                                        <thead>
+                                        <tr>                                                                        
+                                            <th scope="col">Municipal</th>
+                                            <th class="sticky-header" scope="col" style="text-align: center;">Action</th>    
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for i in municipals %}
+                                            <tr> 
+        
+                                                <td>{{i.name}}</td>
+                                                <td style="text-align: center">
+                                                    <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewResident{{ i.id }}">
+                                                        <i class="fa-sharp fa-solid fa-eye"></i>
+                                                    </a>                                         
+                                                    {% include 'provincialAdmin/view_resident.html' %}  
+                                                    {% include 'provincialAdmin/edit_municipal.html' %} 
+                                                    <a class="btn btn-success btn-sm btn-block" title="Edit" data-bs-toggle="modal" data-bs-target="#editMunicipal{{ i.id }}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>     
+                                                    {% comment %} <a class="btn btn-success btn-sm btn-block" title="Delete"  id="delete_municipal{{ i.id }}_{{ i.name }}" data-bs-toggle="modal" data-bs-target="#deleteMunicipal{{ i.id }}">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                    {% include 'superAdmin/delete_municipal.html' %} {% endcomment %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    </table>    
+                                </div>
+                                <div class="text-center-container">
+                                  <div class="text-center">
+                                    {% if residents.has_previous %}
+                                      <a class="btn btn-success btn-sm btn-block" title="Previous Page" href="{% url 'resident' %}?page={{ residents.previous_page_number }}">Previous Page</a>
+                                    {% endif %}
+                                
+                                    <button type="button" class="btn btn-outline-secondary btn-sm">{{ page.number }}</button>
+                                
+                                    {% if residents.has_next %}
+                                      <a class="btn btn-success btn-sm btn-block" title="Next Page" href="{% url 'resident' %}?page={{ residents.next_page_number }}">Next Page</a>
+                                    {% endif %}
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>                          
+</div>    
+
+  
+<script>
+    var map = L.map('map').setView([11.635, 124.4849], 10); // Set the initial view
+
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map);
+
+    {% for municipal in municipals %}
+        var geojson = {{ municipal.geom.geojson|safe }};
+        L.geoJSON(geojson).addTo(map);
+    {% endfor %}
+</script>
+  
+  
+  
+{% endblock %}

@@ -1,0 +1,175 @@
+{% for resident_record in residents %}
+    <div class="modal fade" id="viewResident{{ resident_record.id }}" tabindex="-1" aria-labelledby="ViewResidentLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="viewResidentLabel">Resident Information</h1>
+                </div>
+                <div class="modal-body">
+                              <div class="column-container">
+
+            <!-- Left Column -->
+            <div class="column">
+
+              <!-- Resident Profile -->
+              <div class="section-heading">Resident Profile</div>
+              <table class="table">
+                <tbody>
+                    <tr>
+                        <th scope='row'>Name</th>
+                        <td>{{resident_record.full_name}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Age</th>
+                        <td>{{resident_record.age}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Birth Date</th>
+                        <td>{{resident_record.birth_date}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Phone Number</th>
+                        <td>{{resident_record.phone_number}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Sex</th>
+                        <td>{{resident_record.sex}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Vaccination</th>
+                        <td>{{resident_record.vaccination}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Status</th>
+                        <td>{{resident_record.status}}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+              
+              
+              <!-- Education & Literacy -->
+              <div class="section-heading">Education & Literacy</div>
+              <table class="table">
+                <tbody>
+                    <tr>
+                        <th scope='row'>Early Childhood Education</th>
+                        <td>{{education_record.early_childhood_education}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Primary Education</th>
+                        <td>{{education_record.primary_education}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Lower Secondary Education</th>
+                        <td>{{education_record.lower_secondary_education}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Upper Secondary Education</th>
+                        <td>{{education_record.upper_secondary_education}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Bachelor Education</th>
+                        <td>{{education_record.bachelor_education}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Master Doctoral Education</th>
+                        <td>{{education_record.master_doctoral_education}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Curriculum Strands</th>
+                        <td>{{education_record.curriculum_strands}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Undergraduate Reason</th>
+                        <td>{{education_record.undergraduate_reason}}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            </div>
+          </div>
+
+          <!-- Section Divider -->
+          <div class="section-divider"></div>
+
+          <div class="column-container">
+
+            <!-- Left Column -->
+            <div class="column">
+
+              <!-- Economic -->
+              <div class="section-heading">Economic</div>
+              <table class="table">
+                <tbody>
+                    <tr>
+                        <th scope='row'>Specific Occupation</th>
+                        <td>{{economic_record.specific_occupation}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Industry of Work</th>
+                        <td>{{economic_record.industry_of_work}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Working Arrangement</th>
+                        <td>{{economic_record.working_arrangement}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Nature of Employment</th>
+                        <td>{{economic_record.nature_of_employment}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Class of Worker</th>
+                        <td>{{economic_record.class_of_worker}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Basis of Payment</th>
+                        <td>{{economic_record.basis_of_payment}}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+
+              
+              <!-- Health -->
+              <div class="section-heading">Health</div>
+              <table class="table">
+                <tbody>
+                    <tr>
+                        <th scope='row'>Disability</th>
+                        <td>{{health_record.disability}}</td>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Illness</th>
+                        <td>{{health_record.illness}}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+          </div>
+        </div>
+
+          <!-- Section Divider -->
+          <div class="section-divider"></div>
+                    </div>       
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+  

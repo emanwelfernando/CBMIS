@@ -1,0 +1,528 @@
+{% extends 'base.html' %}
+{% load geojson_tags %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static '/css/main.css' %}" >
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/fontawesome-free-6.4.0-web/css/all.min.css' %}"/>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+<style>
+    .text-center-container {
+        padding-top: 15px; 
+    }
+
+    #wrapper {
+        overflow-x: hidden;
+        background-color: #f3f6fd;
+    }
+
+    .text-center-container {
+        padding-top: 15px;
+    }
+    
+    #resident-filter-form .form-control,
+    #resident-filter-form select {
+        width: 235px;
+    }
+    
+    #resident-filter-form .age-range-input {
+        width: 100px;
+    }
+    
+    .age-range-wrapper {
+        display: flex;
+        gap: 1px;
+    }  
+    
+    .age-range-input {
+        flex: 1;
+        max-width: 100px;
+    }
+
+    .leaflet-control-attribution svg {
+    width:0
+    }
+
+    
+</style>
+
+<div class="d-flex" id="wrapper">
+    
+    {% include 'barangayAdmin/sidebar.html' %} 
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" >
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                <br>
+                <div class="p-2 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="title">Barangay {{request.user.barangay}} Household Information</div>
+                            </div>
+                        </div>
+                        <br>
+                        <form method="get" action="{% url 'barangay-admin-household' %}" class="row g-3" id="household-filter-form">
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_household_head__full_name" class="form-label">Household Head Name:</label>
+                                            {{ household_filter.form.household_head__full_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_members__full_name" class="form-label">Members Name:</label>
+                                            {{ household_filter.form.members__full_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_beneficiaries_with_disability" class="form-label">Members with Disability:</label>
+                                            {{ household_filter.form.num_beneficiaries_with_disability }}
+                                        </div>                                        
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_monthly_income_range" class="form-label">Monthly Income Range:</label>
+                                            {{ household_filter.form.monthly_income_range }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_senior_citizens_0" class="form-label">Senior Citizens:</label>
+                                            {{ household_filter.form.num_senior_citizens }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_pregnant_lactating_mothers_0" class="form-label">Pregnant/Lactating Mothers:</label>
+                                            {{ household_filter.form.num_pregnant_lactating_mothers }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_num_registered_voters" class="form-label">Registered Voters:</label>
+                                            {{ household_filter.form.num_registered_voters }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_housing_condition" class="form-label">Housing Condition:</label>
+                                            {{ household_filter.form.housing_condition }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_education_level_of_head" class="form-label">Head Education Level:</label>
+                                            {{ household_filter.form.education_level_of_head }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_access_to_basic_amenities" class="form-label">Access To Basic Amenities:</label>
+                                            {{ household_filter.form.access_to_basic_amenities }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_ownership_of_assets" class="form-label">Ownership of Assets:</label>
+                                            {{ household_filter.form.ownership_of_assets }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="id_household_type" class="form-label">Household Type:</label>
+                                            {{ household_filter.form.household_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success btn-md btn-block">Filter</button>
+                                <button type="button" class="btn btn-success btn-md btn-block" onclick="clearFilter()">Clear</button>
+                            </div>
+                        </form>
+                        <hr>
+                          <br>
+                          <div id="map1" style="height: 300px;"></div>
+                          <br>
+                        <div class="row table-container">
+                            <table class="table" style="overflow-x: auto;">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>                           
+                                        <th class="sticky-header" scope="col" style="text-align: center;">Action</th>                               
+                                        <th scope="col">Head</th>
+                                        <th scope="col">Members</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for household in households %}
+                                        <tr>
+                                            <td>{{ start_index|add:forloop.counter0|add:1 }}</td>
+                                            <td style="text-align: center">
+                                                <a class="btn btn-success btn-sm btn-block" title="View" data-bs-toggle="modal" data-bs-target="#viewHousehold{{ household.id }}">
+                                                    <i class="fa-sharp fa-solid fa-eye"></i>
+                                                </a>                             
+                                                {% include 'barangayAdmin/view_household.html' %}
+                                            </td>
+                                            <td>{{household.household_head}}</td>
+                                            <td>
+                                                {% for member in household.members.all %}
+                                                <div>
+                                                    {{ member.first_name }} {{ member.last_name }}
+                                                </div>
+                                            {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                          
+                        </div>
+                              
+
+                            <div class="text-center-container">
+                                <div class="text-center">
+                                    {% if households.has_previous %}
+                                        <a class="btn btn-success btn-sm btn-block pagination-link" title="Previous Page" href="{% url 'barangay-admin-household' %}?page={{ households.previous_page_number }}">Previous Page</a>
+                                    {% endif %}
+                                        <button type="button" class="btn btn-outline-secondary btn-sm pagination-link">{{ households.number }}</button>
+                                    {% if households.has_next %}
+                                        <a class="btn btn-success btn-sm btn-block pagination-link" title="Next Page" href="{% url 'barangay-admin-household' %}?page={{ households.next_page_number }}">Next Page</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                          </div>   
+                        </div>          
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>                          
+</div>    
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var loggedInUserBarangayId = {{ user.barangay.id }};
+        var map1 = L.map('map1').setView([11.635, 124.4849], 10);
+        var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map1);
+
+        var householdData = JSON.parse('{{ household_data_json|escapejs }}');
+
+        function addHouseholdMarkersToMap() {
+            for (var i = 0; i < householdData.length; i++) {
+                var household = householdData[i];
+                L.marker([household.latitude, household.longitude]).addTo(map1)
+                    .bindPopup('Household Head: ' + household.head_name);
+            }
+        }
+
+        if (loggedInUserBarangayId != 0) {
+            addHouseholdMarkersToMap();
+            var barangay_geojson_{{ user.barangay.id }} = {{ user.barangay.geom|geojsonfeature|safe }};
+            map1.fitBounds(L.geoJSON(barangay_geojson_{{ user.barangay.id }}).getBounds());
+            L.geoJSON(barangay_geojson_{{ user.barangay.id }}).addTo(map1);
+        }
+
+        function clearFilter() {
+            // Add code to clear filters if needed
+        }
+    });
+</script>
+
+
+<script>
+    var barangay_geojson_{{ user.barangay.id }} = {{ user.barangay.geom|geojsonfeature|safe }};
+    
+    $('#addHousehold').on('shown.bs.modal', function() {
+        var map2 = L.map('map2').setView([11.5865, 124.4849], 16);
+        var googleSat2 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map2);
+    
+        var barangayLayer = L.geoJson(barangay_geojson_{{ user.barangay.id }}).addTo(map2);
+        map2.fitBounds(barangayLayer.getBounds());
+    
+        var marker;
+    
+        map2.on('click', function(e){
+            if(marker) {
+                map2.removeLayer(marker);
+            }
+            marker = new L.marker(e.latlng).addTo(map2);
+        
+            document.getElementById('latitude').value = e.latlng.lat;
+            document.getElementById('longitude').value = e.latlng.lng;
+        
+            // Update displayed values
+            document.getElementById('latitudeDisplay').value = e.latlng.lat;
+            document.getElementById('longitudeDisplay').value = e.latlng.lng;
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.edit-household-btn').on('click', function() {
+            var householdId = $(this).data('household-id');
+            var modal = $('#editHousehold' + householdId);
+    
+            // Initialize the map inside the modal
+            var map2 = L.map('map2-' + householdId);
+    
+            var latitude = parseFloat($('#latitude-' + householdId).val());
+            var longitude = parseFloat($('#longitude-' + householdId).val());
+
+            // Define the LatLng and zoom level here
+            var latLng = [latitude, longitude];
+            var zoomLevel = 17;
+    
+            var googleSat2 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            }).addTo(map2);
+    
+            var barangayLayer = L.geoJson(barangay_geojson_{{ user.barangay.id }}).addTo(map2);
+    
+            // Fit the map to the bounds of the barangay layer
+            map2.fitBounds(barangayLayer.getBounds());
+    
+            // Set the view after adding layers
+            map2.setView(latLng, zoomLevel);
+    
+    
+            var marker;
+    
+            // Get the latitude and longitude values if they exist
+            var latitude = parseFloat($('#latitude-' + householdId).val());
+            var longitude = parseFloat($('#longitude-' + householdId).val());
+            if (!isNaN(latitude) && !isNaN(longitude)) {
+                marker = new L.marker([latitude, longitude]).addTo(map2);
+            }
+    
+            map2.on('click', function(e){
+                if(marker) {
+                    map2.removeLayer(marker);
+                }
+                marker = new L.marker(e.latlng).addTo(map2);
+    
+                $('#latitude-' + householdId).val(e.latlng.lat);
+                $('#longitude-' + householdId).val(e.latlng.lng);
+    
+                // Update displayed values
+                $('#latitudeDisplay-' + householdId).val(e.latlng.lat);
+                $('#longitudeDisplay-' + householdId).val(e.latlng.lng);
+            });
+    
+            // Ensure the map renders properly after modal is shown
+            $('#editHousehold' + householdId).on('shown.bs.modal', function () {
+                map2.invalidateSize();
+            });
+            
+            function getHouseholdDataAndDisplay(householdId) {
+                fetch(`/api/get_household_data/?household_id=${householdId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const editHeadContainer = document.getElementById('selected-head-edit-' + householdId);
+                        const editMembersContainer = document.getElementById('selected-members-edit-' + householdId);
+            
+                        // Populate head
+                        const headElement = document.createElement('div');
+                        headElement.classList.add('badge', 'bg-success', 'rounded-pill', 'me-2', 'selected-result');
+                        headElement.innerText = data.head.full_name;
+                        headElement.dataset.residentId = data.head.id;
+            
+                        // Create delete button for head
+                        const headDeleteButton = document.createElement('button');
+                        headDeleteButton.classList.add('btn-close', 'btn-close-white');
+                        headDeleteButton.addEventListener('click', function() {
+                            headElement.remove();
+                            // Update hidden input value after removing the head
+                            editHiddenHeadInput.value = ''; // Clear the value for the head
+                            updateInputElementValue(editHiddenHeadInput);
+                        });                        
+            
+                        headElement.appendChild(headDeleteButton);
+                        editHeadContainer.appendChild(headElement);
+            
+                        // Populate members
+                        data.members.forEach(member => {
+                            const memberElement = document.createElement('div');
+                            memberElement.classList.add('badge', 'bg-success', 'rounded-pill', 'me-2', 'selected-result');
+                            memberElement.innerText = member.full_name;
+                            memberElement.dataset.residentId = member.id;
+            
+                            // Create delete button for member
+                            const memberDeleteButton = document.createElement('button');
+                                memberDeleteButton.classList.add('btn-close', 'btn-close-white');
+                                memberDeleteButton.addEventListener('click', function() {
+                                memberElement.remove();
+                                // Update hidden input value after removing a member
+                                let memberIds = editHiddenMembersInput.value.split(',').filter(Boolean);
+                                    memberIds = memberIds.filter(id => id !== member.id.toString());
+                                    editHiddenMembersInput.value = memberIds.join(',');
+
+                                updateInputElementValue(editHiddenMembersInput);
+                            });
+                                        
+            
+                            memberElement.appendChild(memberDeleteButton);
+                            editMembersContainer.appendChild(memberElement);
+                        });
+            
+                        // Update hidden input values
+                        const editHiddenHeadInput = document.getElementById('selected-head-ids-hidden-edit-' + householdId);
+                        const editHiddenMembersInput = document.getElementById('selected-members-ids-hidden-edit-' + householdId);
+            
+                        editHiddenHeadInput.value = data.head.id;
+                        data.members.forEach(member => {
+                            editHiddenMembersInput.value += member.id + ',';
+                        });
+            
+                        // Remove trailing comma if there are members
+                        if (data.members.length > 0) {
+                            editHiddenMembersInput.value = editHiddenMembersInput.value.slice(0, -1);
+                        }
+                    });
+            }
+            
+            {% for household in households %}
+                getHouseholdDataAndDisplay({{ household.id }});
+            {% endfor %}
+            
+        });
+
+        function performSearch(inputElement, resultsElement, selectedContainer, isHead, hiddenInput) {
+            resultsElement.innerHTML = '';
+        
+            function showResults(results) {
+                results.slice(0, 10).forEach(result => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item');
+                    listItem.innerText = result.full_name;
+        
+                    listItem.addEventListener('click', function() {
+                        const selectedResident = result;
+                        const selectedName = selectedResident.full_name;
+                        const residentId = selectedResident.id;
+        
+                        addSelectedResident(selectedContainer, residentId, selectedName, hiddenInput);
+        
+                        inputElement.value = '';
+                        resultsElement.innerHTML = '';
+                    });
+        
+                    resultsElement.appendChild(listItem);
+                });
+            }
+        
+            function addSelectedResident(selectedContainer, residentId, selectedName, hiddenInput) {
+                const selectedResidentElement = document.createElement('div');
+                selectedResidentElement.classList.add('badge', 'bg-success', 'rounded-pill', 'me-2', 'selected-result');
+                selectedResidentElement.innerText = selectedName;
+                selectedResidentElement.dataset.residentId = residentId;
+        
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('btn-close', 'btn-close-white');
+                deleteButton.addEventListener('click', function() {
+                    selectedResidentElement.remove();
+                    updateInputElementValue(hiddenInput);
+                });
+        
+                selectedResidentElement.appendChild(deleteButton);
+                selectedContainer.appendChild(selectedResidentElement);
+        
+                updateInputElementValue(hiddenInput);
+            }
+        
+            function updateInputElementValue(hiddenInput) {
+                const selectedIds = [...selectedContainer.querySelectorAll('div')].map(div => div.dataset.residentId);
+                hiddenInput.value = selectedIds.join(',');
+            }
+        
+            inputElement.addEventListener('input', function() {
+                const searchQuery = inputElement.value.trim();
+                if (!searchQuery) {
+                    resultsElement.innerHTML = '';
+                    return;
+                }
+        
+                const endpoint = isHead ? 'search_heads' : 'search_members';
+        
+                fetch(`/api/${endpoint}/?q=${searchQuery}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        showResults(data.results);
+                    });
+            });
+        }
+        
+        {% for household in households %}
+        function performSearchEdit{{ household.id }}() {
+            var editHeadInput{{ household.id }} = document.getElementById('selected-head-ids-edit-{{ household.id }}');
+            var editHeadResults{{ household.id }} = document.getElementById('search-results-head-edit-{{ household.id }}');
+            var editSelectedHead{{ household.id }} = document.getElementById('selected-head-edit-{{ household.id }}');
+            var editHiddenHeadInput{{ household.id }} = document.getElementById('selected-head-ids-hidden-edit-{{ household.id }}');
+        
+            var editMembersInput{{ household.id }} = document.getElementById('selected-members-ids-edit-{{ household.id }}');
+            var editMembersResults{{ household.id }} = document.getElementById('search-results-edit-{{ household.id }}');
+            var editSelectedMembers{{ household.id }} = document.getElementById('selected-members-edit-{{ household.id }}');
+            var editHiddenMembersInput{{ household.id }} = document.getElementById('selected-members-ids-hidden-edit-{{ household.id }}');
+        
+            performSearch(editHeadInput{{ household.id }}, editHeadResults{{ household.id }}, editSelectedHead{{ household.id }}, true, editHiddenHeadInput{{ household.id }});
+            performSearch(editMembersInput{{ household.id }}, editMembersResults{{ household.id }}, editSelectedMembers{{ household.id }}, false, editHiddenMembersInput{{ household.id }});
+        }
+        
+        performSearchEdit{{ household.id }}();
+        {% endfor %}
+        
+        function performSearchAdd() {
+            var addsHeadInput = document.getElementById('selected-head-ids-adds');
+            var addsHeadResults = document.getElementById('search-results-head-adds');
+            var addsSelectedHead = document.getElementById('selected-head-adds');
+            var addsHiddenHeadInput = document.getElementById('selected-head-ids-hidden-adds');
+        
+            var addsMembersInput = document.getElementById('selected-members-ids-adds');
+            var addsMembersResults = document.getElementById('search-results-adds');
+            var addsSelectedMembers = document.getElementById('selected-members-adds');
+            var addsHiddenMembersInput = document.getElementById('selected-members-ids-hidden-adds');
+        
+            performSearch(addsHeadInput, addsHeadResults, addsSelectedHead, true, addsHiddenHeadInput);
+            performSearch(addsMembersInput, addsMembersResults, addsSelectedMembers, false, addsHiddenMembersInput);
+        }
+        
+        performSearchAdd();
+        
+        document.querySelector('form').addEventListener('submit', function(event) {
+            {% for household in households %}
+                updateInputElementValue(document.getElementById('selected-head-ids-hidden-edit-{{ household.id }}'));
+                updateInputElementValue(document.getElementById('selected-members-ids-hidden-edit-{{ household.id }}'));
+            {% endfor %}
+            updateInputElementValue(document.getElementById('selected-head-ids-hidden-adds'));
+            updateInputElementValue(document.getElementById('selected-members-ids-hidden-adds'));
+        });
+        
+    });
+</script>
+    
+
+
+{% endblock %}
